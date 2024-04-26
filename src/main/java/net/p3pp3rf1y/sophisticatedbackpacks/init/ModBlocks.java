@@ -27,7 +27,7 @@ public class ModBlocks {
 
 	@SuppressWarnings("ConstantConditions") //no datafixer type needed
 	public static final RegistryObject<BlockEntityType<BackpackBlockEntity>> BACKPACK_TILE_TYPE = BLOCK_ENTITY_TYPES.register("backpack", () ->
-			BlockEntityType.Builder.of(BackpackBlockEntity::new, BACKPACK.get(), IRON_BACKPACK.get(), GOLD_BACKPACK.get(), DIAMOND_BACKPACK.get(), NETHERITE_BACKPACK.get())
+			BlockEntityType.Builder.of(BackpackBlockEntity::new, BACKPACK.get(), COPPER_BACKPACK.get(), IRON_BACKPACK.get(), GOLD_BACKPACK.get(), DIAMOND_BACKPACK.get(), NETHERITE_BACKPACK.get())
 					.build(null));
 
 	public static void registerHandlers(IEventBus modBus) {
