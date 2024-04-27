@@ -1,6 +1,6 @@
 package net.p3pp3rf1y.sophisticatedbackpacks.backpack.wrapper;
 
-import net.minecraftforge.energy.IEnergyStorage;
+import net.neoforged.neoforge.energy.IEnergyStorage;
 
 public class EmptyEnergyStorage implements IEnergyStorage {
 	public static final EmptyEnergyStorage INSTANCE = new EmptyEnergyStorage();

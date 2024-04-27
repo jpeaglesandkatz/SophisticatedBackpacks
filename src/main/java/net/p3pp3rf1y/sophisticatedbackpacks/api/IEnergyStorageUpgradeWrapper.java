@@ -1,6 +1,6 @@
 package net.p3pp3rf1y.sophisticatedbackpacks.api;
 
-import net.minecraftforge.energy.IEnergyStorage;
+import net.neoforged.neoforge.energy.IEnergyStorage;
 
 import javax.annotation.Nullable;
 

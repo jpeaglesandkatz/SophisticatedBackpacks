@@ -34,18 +34,14 @@ public class RefillUpgradeContainer extends UpgradeContainerBase<RefillUpgradeWr
 		});
 	}
 
-	public Map<Integer, RefillUpgradeWrapper.TargetSlot> getTargetSlots() {
-		return upgradeWrapper.getTargetSlots();
-	}
-
 	public RefillUpgradeWrapper.TargetSlot getTargetSlot(int slot) {
 		RefillUpgradeWrapper.TargetSlot targetSlot = upgradeWrapper.getTargetSlots().get(slot);
 		return targetSlot != null ? targetSlot : RefillUpgradeWrapper.TargetSlot.ANY;
 	}
 
 	@Override
-	public void handleMessage(CompoundTag data) {
-		filterLogicContainer.handleMessage(data);
+	public void handlePacket(CompoundTag data) {
+		filterLogicContainer.handlePacket(data);
 		if (data.contains(DATA_SET_TARGET_SLOT)) {
 			CompoundTag tag = data.getCompound(DATA_SET_TARGET_SLOT);
 			Optional<Integer> slot = NBTHelper.getInt(tag, "slot");

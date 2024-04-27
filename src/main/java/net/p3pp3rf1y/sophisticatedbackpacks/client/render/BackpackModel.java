@@ -14,6 +14,7 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.EntityType;
@@ -23,9 +24,8 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.client.extensions.common.IClientFluidTypeExtensions;
-import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.neoforged.neoforge.client.extensions.common.IClientFluidTypeExtensions;
+import net.neoforged.neoforge.fluids.FluidStack;
 import net.p3pp3rf1y.sophisticatedbackpacks.SophisticatedBackpacks;
 import net.p3pp3rf1y.sophisticatedbackpacks.init.ModItems;
 import net.p3pp3rf1y.sophisticatedcore.renderdata.RenderInfo;
@@ -510,8 +510,7 @@ public class BackpackModel extends AgeableListModel<LivingEntity> implements IBa
 	}
 
 	private static String getTierPartName(Item backpackItem, String partNamePrefix) {
-		//noinspection ConstantConditions - by this point backpack items are registered
-		return partNamePrefix + ForgeRegistries.ITEMS.getKey(backpackItem).getPath();
+		return partNamePrefix + BuiltInRegistries.ITEM.getKey(backpackItem).getPath();
 	}
 
 	private static void addLeftPouchesClips(PartDefinition partDefinition, Item backpackItem, int yTextureOffset) {

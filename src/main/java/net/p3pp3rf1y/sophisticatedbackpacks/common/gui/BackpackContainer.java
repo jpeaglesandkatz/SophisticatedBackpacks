@@ -10,7 +10,6 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.network.NetworkHooks;
 import net.p3pp3rf1y.sophisticatedbackpacks.backpack.BackpackAccessLogger;
 import net.p3pp3rf1y.sophisticatedbackpacks.backpack.BackpackItem;
 import net.p3pp3rf1y.sophisticatedbackpacks.backpack.BackpackStorage;
@@ -18,10 +17,10 @@ import net.p3pp3rf1y.sophisticatedbackpacks.backpack.UUIDDeduplicator;
 import net.p3pp3rf1y.sophisticatedbackpacks.backpack.wrapper.BackpackSettingsHandler;
 import net.p3pp3rf1y.sophisticatedbackpacks.backpack.wrapper.IBackpackWrapper;
 import net.p3pp3rf1y.sophisticatedbackpacks.client.gui.SBPTranslationHelper;
-import net.p3pp3rf1y.sophisticatedbackpacks.network.BackpackContentsMessage;
-import net.p3pp3rf1y.sophisticatedbackpacks.network.SBPPacketHandler;
+import net.p3pp3rf1y.sophisticatedbackpacks.network.BackpackContentsPacket;
 import net.p3pp3rf1y.sophisticatedcore.common.gui.ISyncedContainer;
 import net.p3pp3rf1y.sophisticatedcore.common.gui.StorageContainerMenuBase;
+import net.p3pp3rf1y.sophisticatedcore.network.PacketHelper;
 import net.p3pp3rf1y.sophisticatedcore.upgrades.UpgradeHandler;
 import net.p3pp3rf1y.sophisticatedcore.util.NoopStorageWrapper;
 
@@ -68,7 +67,7 @@ public class BackpackContainer extends StorageContainerMenuBase<IBackpackWrapper
 			CompoundTag settingsNbt = storageWrapper.getSettingsHandler().getNbt();
 			if (!settingsNbt.isEmpty()) {
 				settingsContents.put(BackpackSettingsHandler.SETTINGS_TAG, settingsNbt);
-				SBPPacketHandler.INSTANCE.sendToClient((ServerPlayer) player, new BackpackContentsMessage(uuid, settingsContents));
+				PacketHelper.sendToPlayer(new BackpackContentsPacket(uuid, settingsContents), (ServerPlayer) player);
 			}
 		});
 	}
@@ -83,8 +82,8 @@ public class BackpackContainer extends StorageContainerMenuBase<IBackpackWrapper
 		return backpackContext.canInteractWith(player);
 	}
 
-	public static BackpackContainer fromBuffer(int windowId, Inventory playerInventory, FriendlyByteBuf packetBuffer) {
-		return new BackpackContainer(windowId, playerInventory.player, BackpackContext.fromBuffer(packetBuffer, playerInventory.player.level()));
+	public static BackpackContainer fromBuffer(int windowId, Inventory playerInventory, FriendlyByteBuf buffer) {
+		return new BackpackContainer(windowId, playerInventory.player, BackpackContext.fromBuffer(buffer, playerInventory.player.level()));
 	}
 
 	public BackpackContext getBackpackContext() {
@@ -97,7 +96,7 @@ public class BackpackContainer extends StorageContainerMenuBase<IBackpackWrapper
 			sendToServer(data -> data.putString(ACTION_TAG, "openSettings"));
 			return;
 		}
-		NetworkHooks.openScreen((ServerPlayer) player, new SimpleMenuProvider((w, p, pl) -> new BackpackSettingsContainerMenu(w, pl, backpackContext),
+		player.openMenu(new SimpleMenuProvider((w, p, pl) -> new BackpackSettingsContainerMenu(w, pl, backpackContext),
 				Component.translatable(SBPTranslationHelper.INSTANCE.translGui("settings.title"))), backpackContext::toBuffer);
 	}
 

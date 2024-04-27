@@ -1,4 +1,10 @@
 {
+  "neoforge:conditions": [
+    {
+      "type": "sophisticatedcore:item_enabled",
+      "itemRegistryName": "sophisticatedbackpacks:backpack"
+    }
+  ],
   "parent": "minecraft:recipes/root",
   "criteria": {
     "has_leather": {
@@ -20,14 +26,13 @@
   },
   "requirements": [
     [
-      "has_leather",
-      "has_the_recipe"
+      "has_the_recipe",
+      "has_leather"
     ]
   ],
   "rewards": {
     "recipes": [
       "sophisticatedbackpacks:backpack"
     ]
-  },
-  "sends_telemetry_event": true
+  }
 }

@@ -7,6 +7,7 @@ import com.google.common.collect.Multimap;
 import com.google.common.util.concurrent.AtomicDouble;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
@@ -27,11 +28,10 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.common.IForgeShearable;
-import net.minecraftforge.common.Tags;
-import net.minecraftforge.common.ToolAction;
-import net.minecraftforge.common.ToolActions;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.neoforged.neoforge.common.IShearable;
+import net.neoforged.neoforge.common.Tags;
+import net.neoforged.neoforge.common.ToolAction;
+import net.neoforged.neoforge.common.ToolActions;
 import net.p3pp3rf1y.sophisticatedbackpacks.Config;
 import net.p3pp3rf1y.sophisticatedbackpacks.api.IAttackEntityResponseUpgrade;
 import net.p3pp3rf1y.sophisticatedbackpacks.api.IBlockClickResponseUpgrade;
@@ -48,18 +48,14 @@ import net.p3pp3rf1y.sophisticatedcore.util.InventoryHelper;
 import net.p3pp3rf1y.sophisticatedcore.util.NBTHelper;
 
 import javax.annotation.Nullable;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.Queue;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
-import static net.minecraftforge.common.ToolActions.*;
+import static net.neoforged.neoforge.common.ToolActions.*;
 
 public class ToolSwapperUpgradeWrapper extends UpgradeWrapperBase<ToolSwapperUpgradeWrapper, ToolSwapperUpgradeItem>
 		implements IBlockClickResponseUpgrade, IAttackEntityResponseUpgrade, IBlockToolSwapUpgrade, IEntityToolSwapUpgrade {
@@ -228,13 +224,14 @@ public class ToolSwapperUpgradeWrapper extends UpgradeWrapperBase<ToolSwapperUpg
 	}
 
 	private void updateBestWeapons(AtomicReference<ItemStack> bestAxe, AtomicDouble bestAxeDamage, AtomicReference<ItemStack> bestSword, AtomicDouble bestSwordDamage, ItemStack stack) {
-		AttributeInstance attribute = new AttributeInstance(Attributes.ATTACK_DAMAGE, a -> {});
+		AttributeInstance attribute = new AttributeInstance(Attributes.ATTACK_DAMAGE, a -> {
+		});
 		Multimap<Attribute, AttributeModifier> attributeModifiers = stack.getAttributeModifiers(EquipmentSlot.MAINHAND);
 		if (!attributeModifiers.containsKey(Attributes.ATTACK_DAMAGE)) {
 			return;
 		}
 		attributeModifiers.get(Attributes.ATTACK_DAMAGE).forEach(m -> {
-			attribute.removeModifier(m);
+			attribute.removeModifier(m.getId());
 			attribute.addTransientModifier(m);
 		});
 		double damageValue = attribute.getValue();
@@ -293,12 +290,12 @@ public class ToolSwapperUpgradeWrapper extends UpgradeWrapperBase<ToolSwapperUpg
 	}
 
 	@Override
-	public boolean onEntityInteract(Level world, Entity entity, Player player) {
+	public boolean onEntityInteract(Level level, Entity entity, Player player) {
 		if (!upgradeItem.shouldSwapToolOnKeyPress()) {
 			return false;
 		}
 
-		return tryToSwapTool(player, stack -> itemWorksOnEntity(stack, entity), ForgeRegistries.ENTITY_TYPES.getKey(entity.getType()));
+		return tryToSwapTool(player, stack -> itemWorksOnEntity(stack, entity), BuiltInRegistries.ENTITY_TYPE.getKey(entity.getType()));
 	}
 
 	private boolean itemWorksOnEntity(ItemStack stack, Entity entity) {
@@ -309,12 +306,12 @@ public class ToolSwapperUpgradeWrapper extends UpgradeWrapperBase<ToolSwapperUpg
 	}
 
 	@Override
-	public boolean onBlockInteract(Level world, BlockPos pos, BlockState blockState, Player player) {
+	public boolean onBlockInteract(Level level, BlockPos pos, BlockState blockState, Player player) {
 		if (!upgradeItem.shouldSwapToolOnKeyPress()) {
 			return false;
 		}
 
-		return tryToSwapTool(player, stack -> itemWorksOnBlock(world, pos, blockState, player, stack), ForgeRegistries.BLOCKS.getKey(blockState.getBlock()));
+		return tryToSwapTool(player, stack -> itemWorksOnBlock(level, pos, blockState, player, stack), BuiltInRegistries.BLOCK.getKey(blockState.getBlock()));
 	}
 
 	private boolean tryToSwapTool(Player player, Predicate<ItemStack> isToolValid, @Nullable ResourceLocation targetRegistryName) {
@@ -409,12 +406,12 @@ public class ToolSwapperUpgradeWrapper extends UpgradeWrapperBase<ToolSwapperUpg
 		return stack.getItem() instanceof ShearsItem || stack.is(Tags.Items.SHEARS);
 	}
 
-	private boolean isShearInteractionBlock(Level world, BlockPos pos, ItemStack stack, Block block) {
-		return (block instanceof IForgeShearable shearable && shearable.isShearable(stack, world, pos)) || block instanceof BeehiveBlock;
+	private boolean isShearInteractionBlock(Level level, BlockPos pos, ItemStack stack, Block block) {
+		return (block instanceof IShearable shearable && shearable.isShearable(stack, level, pos)) || block instanceof BeehiveBlock;
 	}
 
 	private boolean isShearableEntity(Entity entity, ItemStack stack) {
-		return entity instanceof IForgeShearable shearable && shearable.isShearable(stack, entity.level(), entity.blockPosition());
+		return entity instanceof IShearable shearable && shearable.isShearable(stack, entity.level(), entity.blockPosition());
 	}
 
 	@Override

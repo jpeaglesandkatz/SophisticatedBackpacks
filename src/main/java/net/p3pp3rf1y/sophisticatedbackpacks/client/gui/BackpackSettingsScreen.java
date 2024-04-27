@@ -2,8 +2,8 @@ package net.p3pp3rf1y.sophisticatedbackpacks.client.gui;
 
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
-import net.p3pp3rf1y.sophisticatedbackpacks.network.BackpackOpenMessage;
-import net.p3pp3rf1y.sophisticatedbackpacks.network.SBPPacketHandler;
+import net.neoforged.neoforge.network.PacketDistributor;
+import net.p3pp3rf1y.sophisticatedbackpacks.network.BackpackOpenPacket;
 import net.p3pp3rf1y.sophisticatedbackpacks.settings.BackpackSettingsTabControl;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.SettingsScreen;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.utils.Position;
@@ -26,6 +26,6 @@ public class BackpackSettingsScreen extends SettingsScreen {
 
 	@Override
 	protected void sendStorageInventoryScreenOpenMessage() {
-		SBPPacketHandler.INSTANCE.sendToServer(new BackpackOpenMessage());
+		PacketDistributor.SERVER.noArg().send(new BackpackOpenPacket());
 	}
 }

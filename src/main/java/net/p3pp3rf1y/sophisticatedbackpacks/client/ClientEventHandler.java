@@ -7,6 +7,7 @@ import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.ItemEntityRenderer;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
+import net.minecraft.client.resources.PlayerSkin;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
@@ -16,46 +17,48 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
-import net.minecraftforge.client.event.EntityRenderersEvent;
-import net.minecraftforge.client.event.InputEvent;
-import net.minecraftforge.client.event.ModelEvent;
-import net.minecraftforge.client.event.RegisterClientReloadListenersEvent;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.eventbus.api.IEventBus;
-import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.neoforge.client.event.*;
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.network.PacketDistributor;
 import net.p3pp3rf1y.sophisticatedbackpacks.SophisticatedBackpacks;
 import net.p3pp3rf1y.sophisticatedbackpacks.client.init.ModBlockColors;
 import net.p3pp3rf1y.sophisticatedbackpacks.client.init.ModItemColors;
 import net.p3pp3rf1y.sophisticatedbackpacks.client.render.*;
 import net.p3pp3rf1y.sophisticatedbackpacks.init.ModBlocks;
-import net.p3pp3rf1y.sophisticatedbackpacks.network.BlockPickMessage;
-import net.p3pp3rf1y.sophisticatedbackpacks.network.SBPPacketHandler;
+import net.p3pp3rf1y.sophisticatedbackpacks.network.BlockPickPacket;
+import net.p3pp3rf1y.sophisticatedbackpacks.network.RequestPlayerSettingsPacket;
 
 import java.util.Map;
 
 import static net.p3pp3rf1y.sophisticatedbackpacks.init.ModItems.EVERLASTING_BACKPACK_ITEM_ENTITY;
 
 public class ClientEventHandler {
-	private ClientEventHandler() {}
+	private ClientEventHandler() {
+	}
 
 	private static final String BACKPACK_REG_NAME = "backpack";
 	public static final ModelLayerLocation BACKPACK_LAYER = new ModelLayerLocation(new ResourceLocation(SophisticatedBackpacks.MOD_ID, BACKPACK_REG_NAME), "main");
 
-	public static void registerHandlers() {
-		IEventBus modBus = FMLJavaModLoadingContext.get().getModEventBus();
+	public static void registerHandlers(IEventBus modBus) {
 		modBus.addListener(ClientEventHandler::onModelRegistry);
 		modBus.addListener(ClientEventHandler::registerLayer);
 		modBus.addListener(ClientEventHandler::registerEntityRenderers);
 		modBus.addListener(ClientEventHandler::registerReloadListener);
 		modBus.addListener(ModItemColors::registerItemColorHandlers);
 		modBus.addListener(ModBlockColors::registerBlockColorHandlers);
-		IEventBus eventBus = MinecraftForge.EVENT_BUS;
+		IEventBus eventBus = NeoForge.EVENT_BUS;
 		eventBus.addListener(ClientBackpackContentsTooltip::onWorldLoad);
 		eventBus.addListener(ClientEventHandler::handleBlockPick);
+		eventBus.addListener(ClientEventHandler::onPlayerLoggingIn);
+	}
+
+	private static void onPlayerLoggingIn(ClientPlayerNetworkEvent.LoggingIn event) {
+		PacketDistributor.SERVER.noArg().send(new RequestPlayerSettingsPacket());
 	}
 
 	private static void onModelRegistry(ModelEvent.RegisterGeometryLoaders event) {
-		event.register(BACKPACK_REG_NAME, BackpackDynamicModel.Loader.INSTANCE);
+		event.register(new ResourceLocation(SophisticatedBackpacks.MOD_ID, BACKPACK_REG_NAME), BackpackDynamicModel.Loader.INSTANCE);
 	}
 
 	public static void registerReloadListener(RegisterClientReloadListenersEvent event) {
@@ -74,15 +77,15 @@ public class ClientEventHandler {
 	@SuppressWarnings("java:S3740") //explanation below
 	private static void registerBackpackLayer() {
 		EntityRenderDispatcher renderManager = Minecraft.getInstance().getEntityRenderDispatcher();
-		Map<String, EntityRenderer<? extends Player>> skinMap = renderManager.getSkinMap();
+		Map<PlayerSkin.Model, EntityRenderer<? extends Player>> skinMap = renderManager.getSkinMap();
 		for (EntityRenderer<? extends Player> renderer : skinMap.values()) {
-			if (renderer instanceof LivingEntityRenderer livingEntityRenderer) {
+			if (renderer instanceof LivingEntityRenderer<?, ?> livingEntityRenderer) {
 				//noinspection rawtypes ,unchecked - this is not going to fail as the LivingRenderer makes sure the types are right, but there doesn't seem to be a way to us inference here
 				livingEntityRenderer.addLayer(new BackpackLayerRenderer(livingEntityRenderer));
 			}
 		}
 		renderManager.renderers.forEach((e, r) -> {
-			if (r instanceof LivingEntityRenderer livingEntityRenderer) {
+			if (r instanceof LivingEntityRenderer<?, ?> livingEntityRenderer) {
 				//noinspection rawtypes ,unchecked - this is not going to fail as the LivingRenderer makes sure the types are right, but there doesn't seem to be a way to us inference here
 				livingEntityRenderer.addLayer(new BackpackLayerRenderer(livingEntityRenderer));
 			}
@@ -97,7 +100,7 @@ public class ClientEventHandler {
 		}
 		HitResult target = mc.hitResult;
 		Level level = player.level();
-		BlockPos pos = ((BlockHitResult)target).getBlockPos();
+		BlockPos pos = ((BlockHitResult) target).getBlockPos();
 		BlockState state = level.getBlockState(pos);
 
 		if (state.isAir()) {
@@ -110,6 +113,6 @@ public class ClientEventHandler {
 			return;
 		}
 
-		SBPPacketHandler.INSTANCE.sendToServer(new BlockPickMessage(result));
+		PacketDistributor.SERVER.noArg().send(new BlockPickPacket(result));
 	}
 }

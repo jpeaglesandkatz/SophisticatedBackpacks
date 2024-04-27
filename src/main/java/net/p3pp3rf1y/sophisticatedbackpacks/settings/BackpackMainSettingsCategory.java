@@ -1,8 +1,8 @@
 package net.p3pp3rf1y.sophisticatedbackpacks.settings;
 
 import net.minecraft.nbt.CompoundTag;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.entity.player.PlayerEvent;
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.p3pp3rf1y.sophisticatedcore.settings.MainSetting;
 import net.p3pp3rf1y.sophisticatedcore.settings.SettingsManager;
 import net.p3pp3rf1y.sophisticatedcore.settings.main.MainSettingsCategory;
@@ -20,7 +20,7 @@ public class BackpackMainSettingsCategory extends MainSettingsCategory<BackpackM
 	static {
 		SettingsManager.addSetting(ANOTHER_PLAYER_CAN_OPEN);
 
-		MinecraftForge.EVENT_BUS.addListener(BackpackMainSettingsCategory::onPlayerClone);
+		NeoForge.EVENT_BUS.addListener(BackpackMainSettingsCategory::onPlayerClone);
 	}
 
 	public BackpackMainSettingsCategory(CompoundTag categoryNbt, Consumer<CompoundTag> saveNbt) {

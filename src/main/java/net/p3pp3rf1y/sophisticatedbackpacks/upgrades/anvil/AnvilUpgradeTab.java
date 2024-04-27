@@ -1,10 +1,8 @@
 package net.p3pp3rf1y.sophisticatedbackpacks.upgrades.anvil;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.world.inventory.Slot;
@@ -13,11 +11,7 @@ import net.p3pp3rf1y.sophisticatedbackpacks.client.gui.SBPTranslationHelper;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.StorageScreenBase;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.UpgradeSettingsTab;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.controls.TextBox;
-import net.p3pp3rf1y.sophisticatedcore.client.gui.utils.Dimension;
-import net.p3pp3rf1y.sophisticatedcore.client.gui.utils.GuiHelper;
-import net.p3pp3rf1y.sophisticatedcore.client.gui.utils.Position;
-import net.p3pp3rf1y.sophisticatedcore.client.gui.utils.TextureBlitData;
-import net.p3pp3rf1y.sophisticatedcore.client.gui.utils.UV;
+import net.p3pp3rf1y.sophisticatedcore.client.gui.utils.*;
 
 import java.util.List;
 
@@ -37,12 +31,12 @@ public class AnvilUpgradeTab extends UpgradeSettingsTab<AnvilUpgradeContainer> {
 		openTabDimension = new Dimension(103, 92);
 		itemNameTextBox = new TextBox(new Position(x + 6, y + 27), new Dimension(84, 13)) {
 			@Override
-			public boolean mouseClicked(double pMouseX, double pMouseY, int pButton) {
+			public boolean mouseClicked(double mouseX, double mouseY, int button) {
 				if (isEditable()) {
 					setFocused(true);
 					screen.setFocused(itemNameTextBox);
 				}
-				return super.mouseClicked(pMouseX, pMouseY, pButton);
+				return super.mouseClicked(mouseX, mouseY, button);
 			}
 
 			@Override

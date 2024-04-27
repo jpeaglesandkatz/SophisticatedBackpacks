@@ -11,41 +11,35 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.Slot;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
-import net.minecraftforge.client.event.RegisterKeyMappingsEvent;
-import net.minecraftforge.client.event.ScreenEvent;
-import net.minecraftforge.client.settings.IKeyConflictContext;
-import net.minecraftforge.client.settings.KeyConflictContext;
-import net.minecraftforge.client.settings.KeyModifier;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
-import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.eventbus.api.EventPriority;
-import net.minecraftforge.eventbus.api.IEventBus;
+import net.neoforged.bus.api.EventPriority;
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent;
+import net.neoforged.neoforge.client.event.ScreenEvent;
+import net.neoforged.neoforge.client.settings.IKeyConflictContext;
+import net.neoforged.neoforge.client.settings.KeyConflictContext;
+import net.neoforged.neoforge.client.settings.KeyModifier;
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.event.TickEvent;
+import net.neoforged.neoforge.network.PacketDistributor;
 import net.p3pp3rf1y.sophisticatedbackpacks.backpack.BackpackItem;
 import net.p3pp3rf1y.sophisticatedbackpacks.client.gui.BackpackScreen;
 import net.p3pp3rf1y.sophisticatedbackpacks.client.gui.SBPTranslationHelper;
 import net.p3pp3rf1y.sophisticatedbackpacks.common.gui.BackpackContainer;
-import net.p3pp3rf1y.sophisticatedbackpacks.network.BackpackCloseMessage;
-import net.p3pp3rf1y.sophisticatedbackpacks.network.BackpackOpenMessage;
-import net.p3pp3rf1y.sophisticatedbackpacks.network.BlockToolSwapMessage;
-import net.p3pp3rf1y.sophisticatedbackpacks.network.EntityToolSwapMessage;
-import net.p3pp3rf1y.sophisticatedbackpacks.network.InventoryInteractionMessage;
-import net.p3pp3rf1y.sophisticatedbackpacks.network.SBPPacketHandler;
-import net.p3pp3rf1y.sophisticatedbackpacks.network.UpgradeToggleMessage;
+import net.p3pp3rf1y.sophisticatedbackpacks.network.*;
 import net.p3pp3rf1y.sophisticatedbackpacks.util.PlayerInventoryProvider;
-import net.p3pp3rf1y.sophisticatedcore.util.WorldHelper;
+import net.p3pp3rf1y.sophisticatedcore.util.CapabilityHelper;
 
 import java.util.Map;
 import java.util.Optional;
 
-import static net.minecraftforge.client.settings.KeyConflictContext.GUI;
+import static net.neoforged.neoforge.client.settings.KeyConflictContext.GUI;
 
 public class KeybindHandler {
-	private KeybindHandler() {}
+	private KeybindHandler() {
+	}
 
 	private static final int KEY_B = 66;
 	private static final int KEY_C = 67;
@@ -84,7 +78,7 @@ public class KeybindHandler {
 			BackpackKeyConflictContext.INSTANCE, InputConstants.Type.KEYSYM.getOrCreate(KEY_B), KEYBIND_SOPHISTICATEDBACKPACKS_CATEGORY);
 
 	public static void register() {
-		IEventBus eventBus = MinecraftForge.EVENT_BUS;
+		IEventBus eventBus = NeoForge.EVENT_BUS;
 		eventBus.addListener(EventPriority.HIGH, KeybindHandler::handleKeyInputEvent);
 		eventBus.addListener(EventPriority.HIGH, KeybindHandler::handleGuiMouseKeyPress);
 		eventBus.addListener(EventPriority.HIGH, KeybindHandler::handleGuiKeyPress);
@@ -122,7 +116,7 @@ public class KeybindHandler {
 		} else {
 			for (Map.Entry<Integer, KeyMapping> slotKeybind : UPGRADE_SLOT_TOGGLE_KEYBINDS.entrySet()) {
 				if (slotKeybind.getValue().consumeClick()) {
-					SBPPacketHandler.INSTANCE.sendToServer(new UpgradeToggleMessage(slotKeybind.getKey()));
+					PacketDistributor.SERVER.noArg().send(new UpgradeTogglePacket(slotKeybind.getKey()));
 				}
 			}
 		}
@@ -157,10 +151,10 @@ public class KeybindHandler {
 		if (rayTrace.getType() == HitResult.Type.BLOCK) {
 			BlockHitResult blockRayTraceResult = (BlockHitResult) rayTrace;
 			BlockPos pos = blockRayTraceResult.getBlockPos();
-			SBPPacketHandler.INSTANCE.sendToServer(new BlockToolSwapMessage(pos));
+			PacketDistributor.SERVER.noArg().send(new BlockToolSwapPacket(pos));
 		} else if (rayTrace.getType() == HitResult.Type.ENTITY) {
 			EntityHitResult entityRayTraceResult = (EntityHitResult) rayTrace;
-			SBPPacketHandler.INSTANCE.sendToServer(new EntityToolSwapMessage(entityRayTraceResult.getEntity().getId()));
+			PacketDistributor.SERVER.noArg().send(new EntityToolSwapPacket(entityRayTraceResult.getEntity().getId()));
 		}
 	}
 
@@ -173,17 +167,17 @@ public class KeybindHandler {
 		BlockHitResult blockraytraceresult = (BlockHitResult) rayTrace;
 		BlockPos pos = blockraytraceresult.getBlockPos();
 
-		if (!WorldHelper.getBlockEntity(mc.level, pos, BlockEntity.class).map(te -> te.getCapability(ForgeCapabilities.ITEM_HANDLER).isPresent()).orElse(false)) {
+		if (Boolean.FALSE.equals(CapabilityHelper.getFromItemHandler(mc.level, pos, itemHandler -> true, false))) {
 			return;
 		}
 
-		SBPPacketHandler.INSTANCE.sendToServer(new InventoryInteractionMessage(pos, blockraytraceresult.getDirection()));
+		PacketDistributor.SERVER.noArg().send(new InventoryInteractionPacket(pos, blockraytraceresult.getDirection()));
 	}
 
-	@SuppressWarnings({"java:S2440", "InstantiationOfUtilityClass"})
+	@SuppressWarnings({"java:S2440"})
 	private static boolean sendBackpackOpenOrCloseMessage() {
 		if (!GUI.isActive()) {
-			SBPPacketHandler.INSTANCE.sendToServer(new BackpackOpenMessage());
+			PacketDistributor.SERVER.noArg().send(new BackpackOpenPacket());
 			return false;
 		}
 
@@ -195,12 +189,12 @@ public class KeybindHandler {
 				Optional<String> handlerName = getPlayerInventoryHandlerName(slot.getSlotIndex());
 
 				if (handlerName.isPresent() && slot.getItem().getItem() instanceof BackpackItem) {
-					SBPPacketHandler.INSTANCE.sendToServer(new BackpackOpenMessage(slot.getSlotIndex(), "", handlerName.get()));
+					PacketDistributor.SERVER.noArg().send(new BackpackOpenPacket(slot.getSlotIndex(), "", handlerName.get()));
 					return true;
 				}
 			}
 			if (screen instanceof BackpackScreen && slot != null && slot.getItem().getItem() instanceof BackpackItem && slot.getItem().getCount() == 1) {
-				SBPPacketHandler.INSTANCE.sendToServer(new BackpackOpenMessage(slot.index));
+				PacketDistributor.SERVER.noArg().send(new BackpackOpenPacket(slot.index));
 				return true;
 			}
 		}
@@ -210,7 +204,7 @@ public class KeybindHandler {
 	private static Optional<String> getPlayerInventoryHandlerName(int slotIndex) {
 		if (slotIndex == CHEST_SLOT_INDEX) {
 			return Optional.of(PlayerInventoryProvider.ARMOR_INVENTORY);
-		} else  if (slotIndex == OFFHAND_SLOT_INDEX) {
+		} else if (slotIndex == OFFHAND_SLOT_INDEX) {
 			return Optional.of(PlayerInventoryProvider.OFFHAND_INVENTORY);
 		} else if (slotIndex >= 0 && slotIndex < 36) {
 			return Optional.of(PlayerInventoryProvider.MAIN_INVENTORY);

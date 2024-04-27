@@ -2,6 +2,7 @@ package net.p3pp3rf1y.sophisticatedbackpacks.registry.tool;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
@@ -14,11 +15,9 @@ import net.minecraft.world.entity.animal.Bee;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.BaseRailBlock;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
-import net.minecraftforge.fml.ModList;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.neoforged.fml.ModList;
+import net.neoforged.neoforge.capabilities.Capabilities;
 import net.p3pp3rf1y.sophisticatedbackpacks.SophisticatedBackpacks;
-import net.p3pp3rf1y.sophisticatedcore.util.WorldHelper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,7 +25,8 @@ import java.util.Optional;
 import java.util.function.Predicate;
 
 public class Matchers {
-	private Matchers() {}
+	private Matchers() {
+	}
 
 	private static final List<ItemMatcherFactory> ITEM_MATCHER_FACTORIES = new ArrayList<>();
 	private static final List<IMatcherFactory<BlockContext>> BLOCK_MATCHER_FACTORIES = new ArrayList<>();
@@ -46,10 +46,10 @@ public class Matchers {
 			@Override
 			protected Optional<Predicate<ItemStack>> getPredicateFromObject(JsonObject jsonObject) {
 				ResourceLocation itemName = new ResourceLocation(GsonHelper.getAsString(jsonObject, "item"));
-				if (!ForgeRegistries.ITEMS.containsKey(itemName)) {
+				if (!BuiltInRegistries.ITEM.containsKey(itemName)) {
 					SophisticatedBackpacks.LOGGER.debug("{} isn't loaded in item registry, skipping ...", itemName);
 				}
-				Item item = ForgeRegistries.ITEMS.getValue(itemName);
+				Item item = BuiltInRegistries.ITEM.get(itemName);
 				return Optional.of(st -> st.getItem() == item && (st.getTag() == null || st.getTag().isEmpty()));
 			}
 		});
@@ -68,7 +68,7 @@ public class Matchers {
 					return Optional.empty();
 				}
 
-				return Optional.of(new ModMatcher<>(ForgeRegistries.BLOCKS, modId, BlockContext::getBlock));
+				return Optional.of(new ModMatcher<>(BuiltInRegistries.BLOCK, modId, BlockContext::getBlock));
 			}
 		});
 		BLOCK_MATCHER_FACTORIES.add(new TypedMatcherFactory<>("all") {
@@ -86,8 +86,7 @@ public class Matchers {
 		BLOCK_MATCHER_FACTORIES.add(new TypedMatcherFactory<>("item_handler") {
 			@Override
 			protected Optional<Predicate<BlockContext>> getPredicateFromObject(JsonObject jsonObject) {
-				return Optional.of(blockContext -> WorldHelper.getBlockEntity(blockContext.getWorld(),
-						blockContext.getPos()).map(te -> te.getCapability(ForgeCapabilities.ITEM_HANDLER).isPresent()).orElse(false));
+				return Optional.of(blockContext -> blockContext.getLevel().getCapability(Capabilities.ItemHandler.BLOCK, blockContext.getPos(), null) != null);
 			}
 		});
 		ENTITY_MATCHER_FACTORIES.add(new TypedMatcherFactory<>("animal") {

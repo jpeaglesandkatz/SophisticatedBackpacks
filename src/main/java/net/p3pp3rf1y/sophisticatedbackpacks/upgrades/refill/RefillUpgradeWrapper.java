@@ -11,9 +11,8 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
-import net.minecraftforge.items.IItemHandler;
-import net.minecraftforge.items.ItemHandlerHelper;
+import net.neoforged.neoforge.items.IItemHandler;
+import net.neoforged.neoforge.items.ItemHandlerHelper;
 import net.p3pp3rf1y.sophisticatedbackpacks.api.IBlockPickResponseUpgrade;
 import net.p3pp3rf1y.sophisticatedbackpacks.client.gui.SBPTranslationHelper;
 import net.p3pp3rf1y.sophisticatedcore.api.IStorageWrapper;
@@ -22,6 +21,7 @@ import net.p3pp3rf1y.sophisticatedcore.upgrades.FilterLogic;
 import net.p3pp3rf1y.sophisticatedcore.upgrades.IFilteredUpgrade;
 import net.p3pp3rf1y.sophisticatedcore.upgrades.ITickableUpgrade;
 import net.p3pp3rf1y.sophisticatedcore.upgrades.UpgradeWrapperBase;
+import net.p3pp3rf1y.sophisticatedcore.util.CapabilityHelper;
 import net.p3pp3rf1y.sophisticatedcore.util.InventoryHelper;
 import net.p3pp3rf1y.sophisticatedcore.util.NBTHelper;
 
@@ -86,17 +86,17 @@ public class RefillUpgradeWrapper extends UpgradeWrapperBase<RefillUpgradeWrappe
 	}
 
 	@Override
-	public void tick(@Nullable LivingEntity entity, Level world, BlockPos pos) {
-		if (entity == null /*not supported in block form*/ || isInCooldown(world)) {
+	public void tick(@Nullable LivingEntity entity, Level level, BlockPos pos) {
+		if (entity == null /*not supported in block form*/ || isInCooldown(level)) {
 			return;
 		}
-		entity.getCapability(ForgeCapabilities.ITEM_HANDLER, null).ifPresent(playerInvHandler -> InventoryHelper.iterate(filterLogic.getFilterHandler(), (slot, filter) -> {
+		CapabilityHelper.runOnItemHandler(entity, playerInvHandler -> InventoryHelper.iterate(filterLogic.getFilterHandler(), (slot, filter) -> {
 			if (filter.isEmpty()) {
 				return;
 			}
 			tryRefillFilter(entity, playerInvHandler, filter, getTargetSlots().getOrDefault(slot, TargetSlot.ANY));
 		}));
-		setCooldown(world, COOLDOWN);
+		setCooldown(level, COOLDOWN);
 	}
 
 	private void tryRefillFilter(@Nonnull LivingEntity entity, IItemHandler playerInvHandler, ItemStack filter, TargetSlot targetSlot) {
@@ -151,7 +151,7 @@ public class RefillUpgradeWrapper extends UpgradeWrapperBase<RefillUpgradeWrappe
 		toExtract.setCount(filter.getMaxStackSize());
 		if (hasItemInBackpack.get() && !InventoryHelper.extractFromInventory(toExtract, inventoryHandler, true).isEmpty()) {
 			if ((inventoryHandler.getStackInSlot(stashSlot.get()).getCount() > filter.getMaxStackSize() || !inventoryHandler.isItemValid(stashSlot.get(), mainHandItem))
-				&& !inventoryHandler.insertItem(mainHandItem, true).isEmpty()) {
+					&& !inventoryHandler.insertItem(mainHandItem, true).isEmpty()) {
 				if (canMoveMainHandToInventory(player)) {
 					ItemStack extracted = InventoryHelper.extractFromInventory(toExtract, inventoryHandler, false);
 					player.setItemInHand(InteractionHand.MAIN_HAND, extracted);

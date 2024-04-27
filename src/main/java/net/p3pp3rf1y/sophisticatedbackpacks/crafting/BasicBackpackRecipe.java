@@ -5,8 +5,7 @@ import net.minecraft.world.inventory.CraftingContainer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.ShapedRecipe;
-import net.p3pp3rf1y.sophisticatedbackpacks.api.CapabilityBackpackWrapper;
-import net.p3pp3rf1y.sophisticatedbackpacks.backpack.wrapper.IBackpackWrapper;
+import net.p3pp3rf1y.sophisticatedbackpacks.backpack.wrapper.BackpackWrapper;
 import net.p3pp3rf1y.sophisticatedbackpacks.init.ModItems;
 import net.p3pp3rf1y.sophisticatedcore.crafting.IWrapperRecipe;
 import net.p3pp3rf1y.sophisticatedcore.crafting.RecipeWrapperSerializer;
@@ -15,7 +14,7 @@ public class BasicBackpackRecipe extends ShapedRecipe implements IWrapperRecipe<
 	private final ShapedRecipe compose;
 
 	public BasicBackpackRecipe(ShapedRecipe compose) {
-		super(compose.getId(), compose.getGroup(), compose.category(), compose.getRecipeWidth(), compose.getRecipeHeight(), compose.getIngredients(), compose.result);
+		super(compose.getGroup(), compose.category(), compose.pattern, compose.result);
 		this.compose = compose;
 	}
 
@@ -32,7 +31,7 @@ public class BasicBackpackRecipe extends ShapedRecipe implements IWrapperRecipe<
 	}
 
 	private void removeUuid(ItemStack backpack) {
-		backpack.getCapability(CapabilityBackpackWrapper.getCapabilityInstance()).ifPresent(IBackpackWrapper::removeContentsUuid);
+		BackpackWrapper.fromData(backpack).removeContentsUuid();
 	}
 
 	@Override

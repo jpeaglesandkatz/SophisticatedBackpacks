@@ -7,8 +7,8 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.DyeColor;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.entity.player.ItemTooltipEvent;
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.event.entity.player.ItemTooltipEvent;
 import net.p3pp3rf1y.sophisticatedbackpacks.client.gui.SBPTranslationHelper;
 import net.p3pp3rf1y.sophisticatedbackpacks.common.gui.BackpackContainer;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.StorageScreenBase;
@@ -28,8 +28,9 @@ public abstract class RefillUpgradeTab extends UpgradeSettingsTab<RefillUpgradeC
 	private RefillUpgradeWrapper.TargetSlot targetSlotBeingChanged = null;
 
 	private static List<Component> additionalTooltip = new ArrayList<>();
+
 	static {
-		MinecraftForge.EVENT_BUS.addListener(RefillUpgradeTab::addToTooltip);
+		NeoForge.EVENT_BUS.addListener(RefillUpgradeTab::addToTooltip);
 	}
 
 	private static void addToTooltip(ItemTooltipEvent event) {
@@ -141,7 +142,7 @@ public abstract class RefillUpgradeTab extends UpgradeSettingsTab<RefillUpgradeC
 					guiGraphics.drawString(font, targetSlot.getAcronym(),
 							getX() + (slotIndex % slotsInRow) * 18 + 10, getY() + (slotIndex / slotsInRow) * 18 + 2, DyeColor.GREEN.getTextColor());
 				}
-					});
+			});
 
 			poseStack.popPose();
 		}
@@ -164,7 +165,7 @@ public abstract class RefillUpgradeTab extends UpgradeSettingsTab<RefillUpgradeC
 		}
 
 		@Override
-		public boolean mouseScrolled(double mouseX, double mouseY, double pDelta) {
+		public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
 			int slot = getSlot(mouseX, mouseY);
 
 			if (slotBeingChanged == -1) {
@@ -172,7 +173,7 @@ public abstract class RefillUpgradeTab extends UpgradeSettingsTab<RefillUpgradeC
 				targetSlotBeingChanged = getContainer().getTargetSlot(slot);
 			}
 
-			targetSlotBeingChanged = pDelta > 0 ? targetSlotBeingChanged.next() : targetSlotBeingChanged.previous();
+			targetSlotBeingChanged = scrollY > 0 ? targetSlotBeingChanged.next() : targetSlotBeingChanged.previous();
 
 			return true;
 		}

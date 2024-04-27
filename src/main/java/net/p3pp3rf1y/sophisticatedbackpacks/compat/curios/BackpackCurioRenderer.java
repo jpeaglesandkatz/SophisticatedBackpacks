@@ -22,7 +22,7 @@ public class BackpackCurioRenderer implements ICurioRenderer {
 			if (renderLayerParent.getModel() instanceof HumanoidModel<?> parentModel) {
 				IBackpackModel model = BackpackModelManager.getBackpackModel(stack.getItem());
 				EquipmentSlot equipmentSlot = model.getRenderEquipmentSlot();
-				BackpackLayerRenderer.renderBackpack(parentModel, slotContext.getWearer(), matrixStack, renderTypeBuffer, light, stack, !slotContext.getWearer().getItemBySlot(equipmentSlot).isEmpty(), BackpackModelManager.getBackpackModel(stack.getItem()));
+				BackpackLayerRenderer.renderBackpack(parentModel, slotContext.entity(), matrixStack, renderTypeBuffer, light, stack, !slotContext.entity().getItemBySlot(equipmentSlot).isEmpty(), BackpackModelManager.getBackpackModel(stack.getItem()));
 				matrixStack.popPose();
 			}
 		}

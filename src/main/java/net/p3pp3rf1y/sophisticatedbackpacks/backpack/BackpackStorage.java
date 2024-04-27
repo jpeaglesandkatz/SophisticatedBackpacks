@@ -9,17 +9,12 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.saveddata.SavedData;
 import net.minecraft.world.level.storage.DimensionDataStorage;
-import net.minecraftforge.fml.util.thread.SidedThreadGroups;
-import net.minecraftforge.server.ServerLifecycleHooks;
+import net.neoforged.fml.util.thread.SidedThreadGroups;
+import net.neoforged.neoforge.server.ServerLifecycleHooks;
 import net.p3pp3rf1y.sophisticatedbackpacks.SophisticatedBackpacks;
 import net.p3pp3rf1y.sophisticatedbackpacks.backpack.wrapper.BackpackSettingsHandler;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class BackpackStorage extends SavedData {
@@ -29,7 +24,8 @@ public class BackpackStorage extends SavedData {
 	private static final BackpackStorage clientStorageCopy = new BackpackStorage();
 	private final Map<UUID, AccessLogRecord> accessLogRecords = new HashMap<>();
 
-	private BackpackStorage() {}
+	private BackpackStorage() {
+	}
 
 	public static BackpackStorage get() {
 		if (Thread.currentThread().getThreadGroup() == SidedThreadGroups.SERVER) {
@@ -38,7 +34,7 @@ public class BackpackStorage extends SavedData {
 				ServerLevel overworld = server.getLevel(Level.OVERWORLD);
 				//noinspection ConstantConditions - by this time overworld is loaded
 				DimensionDataStorage storage = overworld.getDataStorage();
-				return storage.computeIfAbsent(BackpackStorage::load, BackpackStorage::new, SAVED_DATA_NAME);
+				return storage.computeIfAbsent(new Factory<>(BackpackStorage::new, BackpackStorage::load), SAVED_DATA_NAME);
 			}
 		}
 		return clientStorageCopy;

@@ -1,5 +1,6 @@
 package net.p3pp3rf1y.sophisticatedbackpacks.data;
 
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.loot.BlockLootSubProvider;
 import net.minecraft.world.flag.FeatureFlags;
 import net.minecraft.world.level.block.Block;
@@ -8,7 +9,6 @@ import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.entries.LootItem;
 import net.minecraft.world.level.storage.loot.entries.LootPoolEntryContainer;
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
-import net.minecraftforge.registries.ForgeRegistries;
 import net.p3pp3rf1y.sophisticatedbackpacks.SophisticatedBackpacks;
 import net.p3pp3rf1y.sophisticatedbackpacks.backpack.BackpackItem;
 import net.p3pp3rf1y.sophisticatedbackpacks.init.ModBlocks;
@@ -34,7 +34,7 @@ public class SBPBlockLootSubProvider extends BlockLootSubProvider {
 
 	@Override
 	protected Iterable<Block> getKnownBlocks() {
-		return ForgeRegistries.BLOCKS.getEntries().stream()
+		return BuiltInRegistries.BLOCK.entrySet().stream()
 				.filter(e -> e.getKey().location().getNamespace().equals(SophisticatedBackpacks.MOD_ID))
 				.map(Map.Entry::getValue)
 				.toList();

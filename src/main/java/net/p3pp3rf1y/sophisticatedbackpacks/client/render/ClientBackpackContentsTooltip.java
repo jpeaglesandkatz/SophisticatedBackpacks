@@ -3,11 +3,11 @@ package net.p3pp3rf1y.sophisticatedbackpacks.client.render;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.event.level.LevelEvent;
-import net.p3pp3rf1y.sophisticatedbackpacks.api.CapabilityBackpackWrapper;
+import net.neoforged.neoforge.event.level.LevelEvent;
+import net.neoforged.neoforge.network.PacketDistributor;
 import net.p3pp3rf1y.sophisticatedbackpacks.backpack.BackpackItem;
-import net.p3pp3rf1y.sophisticatedbackpacks.network.RequestBackpackInventoryContentsMessage;
-import net.p3pp3rf1y.sophisticatedbackpacks.network.SBPPacketHandler;
+import net.p3pp3rf1y.sophisticatedbackpacks.backpack.wrapper.BackpackWrapper;
+import net.p3pp3rf1y.sophisticatedbackpacks.network.RequestBackpackInventoryContentsPacket;
 import net.p3pp3rf1y.sophisticatedcore.client.render.ClientStorageContentsTooltipBase;
 
 import java.util.UUID;
@@ -15,7 +15,8 @@ import java.util.UUID;
 public class ClientBackpackContentsTooltip extends ClientStorageContentsTooltipBase {
 	private final ItemStack backpack;
 
-	@SuppressWarnings("unused") //parameter needs to be there so that addListener logic would know which event this method listens to
+	@SuppressWarnings("unused")
+	//parameter needs to be there so that addListener logic would know which event this method listens to
 	public static void onWorldLoad(LevelEvent.Load event) {
 		refreshContents();
 		lastRequestTime = 0;
@@ -23,7 +24,7 @@ public class ClientBackpackContentsTooltip extends ClientStorageContentsTooltipB
 
 	@Override
 	public void renderImage(Font font, int leftX, int topY, GuiGraphics guiGraphics) {
-		backpack.getCapability(CapabilityBackpackWrapper.getCapabilityInstance()).ifPresent(wrapper -> renderTooltip(wrapper, font, leftX, topY, guiGraphics));
+		renderTooltip(BackpackWrapper.fromData(backpack), font, leftX, topY, guiGraphics);
 	}
 
 	public ClientBackpackContentsTooltip(BackpackItem.BackpackContentsTooltip tooltip) {
@@ -32,6 +33,6 @@ public class ClientBackpackContentsTooltip extends ClientStorageContentsTooltipB
 
 	@Override
 	protected void sendInventorySyncRequest(UUID uuid) {
-		SBPPacketHandler.INSTANCE.sendToServer(new RequestBackpackInventoryContentsMessage(uuid));
+		PacketDistributor.SERVER.noArg().send(new RequestBackpackInventoryContentsPacket(uuid));
 	}
 }

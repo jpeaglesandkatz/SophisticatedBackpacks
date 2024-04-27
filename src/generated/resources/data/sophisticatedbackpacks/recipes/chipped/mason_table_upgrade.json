@@ -1,8 +1,7 @@
 {
-  "type": "minecraft:crafting_shaped",
-  "conditions": [
+  "neoforge:conditions": [
     {
-      "type": "forge:mod_loaded",
+      "type": "neoforge:mod_loaded",
       "modid": "chipped"
     },
     {
@@ -10,6 +9,8 @@
       "itemRegistryName": "sophisticatedbackpacks:chipped/mason_table_upgrade"
     }
   ],
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
   "key": {
     "B": {
       "item": "sophisticatedbackpacks:upgrade_base"

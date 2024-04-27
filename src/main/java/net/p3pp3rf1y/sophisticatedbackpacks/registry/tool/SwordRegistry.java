@@ -3,12 +3,12 @@ package net.p3pp3rf1y.sophisticatedbackpacks.registry.tool;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.SwordItem;
-import net.minecraftforge.fml.ModList;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.neoforged.fml.ModList;
 import net.p3pp3rf1y.sophisticatedbackpacks.SophisticatedBackpacks;
 import net.p3pp3rf1y.sophisticatedbackpacks.registry.IRegistryDataLoader;
 
@@ -20,7 +20,8 @@ import java.util.Set;
 import java.util.function.Predicate;
 
 public class SwordRegistry {
-	private SwordRegistry() {}
+	private SwordRegistry() {
+	}
 
 	private static final Set<Item> SWORD_ITEMS = new HashSet<>();
 	private static final Map<String, Set<Predicate<ItemStack>>> MOD_SWORD_MATCHERS = new HashMap<>();
@@ -36,8 +37,8 @@ public class SwordRegistry {
 			return true;
 		}
 
-		ResourceLocation registryName = ForgeRegistries.ITEMS.getKey(stack.getItem());
-		if (registryName == null) {
+		ResourceLocation registryName = BuiltInRegistries.ITEM.getKey(stack.getItem());
+		if (registryName == BuiltInRegistries.ITEM.getDefaultKey()) {
 			return false;
 		}
 
@@ -93,17 +94,18 @@ public class SwordRegistry {
 		}
 
 		private void parseSword(String swordName) {
-			Item sword = ForgeRegistries.ITEMS.getValue(new ResourceLocation(swordName));
-			if (sword != null) {
-				SWORD_ITEMS.add(sword);
-			} else {
-				String modId = swordName.split(":")[0];
-				if (!ModList.get().isLoaded(modId)) {
-					SophisticatedBackpacks.LOGGER.debug("Mod {} isn't loaded skipping load of sword {}", modId, swordName);
-				} else {
-					SophisticatedBackpacks.LOGGER.warn("Mod {} is loaded and yet sword {} doesn't exist in registry, skipping its load", modId, swordName);
-				}
-			}
+			BuiltInRegistries.ITEM.getOptional(new ResourceLocation(swordName))
+					.ifPresentOrElse(
+							SWORD_ITEMS::add,
+							() -> {
+								String modId = swordName.split(":")[0];
+								if (!ModList.get().isLoaded(modId)) {
+									SophisticatedBackpacks.LOGGER.debug("Mod {} isn't loaded skipping load of sword {}", modId, swordName);
+								} else {
+									SophisticatedBackpacks.LOGGER.warn("Mod {} is loaded and yet sword {} doesn't exist in registry, skipping its load", modId, swordName);
+								}
+							}
+					);
 		}
 
 		@Override
