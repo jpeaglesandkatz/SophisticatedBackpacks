@@ -60,10 +60,11 @@ public class SBLootModifierProvider extends GlobalLootModifierProvider {
 					LootTableIdCondition.builder(lootTableToInjectInto).build()}, lootTable, lootTableToInjectInto);
 		}
 
+		@SuppressWarnings({"deprecation", "java:S1874"}) // Need to call getRandomItemsRaw to skip neo calling modifyLoot event and causing infinite loop
 		@Override
 		protected ObjectArrayList<ItemStack> doApply(ObjectArrayList<ItemStack> generatedLoot, LootContext context) {
 			LootTable table = context.getResolver().getLootTable(lootTable);
-			table.getRandomItems(context, generatedLoot::add);
+			table.getRandomItemsRaw(context, generatedLoot::add);
 			return generatedLoot;
 		}
 
