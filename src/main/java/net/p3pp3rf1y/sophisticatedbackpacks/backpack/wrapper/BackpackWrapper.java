@@ -506,7 +506,7 @@ public class BackpackWrapper implements IBackpackWrapper {
 			return;
 		}
 
-		ResourceLocation lootTableName = new ResourceLocation(lootName);
+		ResourceLocation lootTableName = ResourceLocation.fromNamespaceAndPath(lootName);
 		float lootPercentage = NBTHelper.getFloat(getBackpackStack(), LOOT_PERCENTAGE_TAG).orElse(0f);
 
 		getBackpackStack().removeTagKey(LOOT_TABLE_NAME_TAG);

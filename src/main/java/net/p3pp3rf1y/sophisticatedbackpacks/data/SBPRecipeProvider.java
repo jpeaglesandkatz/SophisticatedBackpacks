@@ -38,9 +38,9 @@ public class SBPRecipeProvider extends RecipeProvider {
 				.pattern("SLS")
 				.pattern("SCS")
 				.pattern("LLL")
-				.define('L', Tags.Items.LEATHER)
+				.define('L', Tags.Items.LEATHERS)
 				.define('C', Tags.Items.CHESTS_WOODEN)
-				.define('S', Tags.Items.STRING)
+				.define('S', Tags.Items.STRINGS)
 				.unlockedBy("has_leather", hasLeather())
 				.save(recipeOutput);
 
@@ -80,7 +80,7 @@ public class SBPRecipeProvider extends RecipeProvider {
 				.define('I', Tags.Items.INGOTS_IRON)
 				.define('B', ModItems.COPPER_BACKPACK.get())
 				.unlockedBy("has_copper_backpack", has(ModItems.COPPER_BACKPACK.get()))
-				.save(recipeOutput, new ResourceLocation(SophisticatedBackpacks.getRegistryName("iron_backpack_from_copper")));
+				.save(recipeOutput, ResourceLocation.fromNamespaceAndPath(SophisticatedBackpacks.getRegistryName("iron_backpack_from_copper")));
 
 		ShapeBasedRecipeBuilder.shaped(ModItems.COPPER_BACKPACK.get(), BackpackUpgradeRecipe::new)
 				.pattern("CCC")
@@ -99,7 +99,7 @@ public class SBPRecipeProvider extends RecipeProvider {
 				.pattern("RRR")
 				.define('B', ModItems.UPGRADE_BASE.get())
 				.define('R', Tags.Items.DUSTS_REDSTONE)
-				.define('S', Tags.Items.STRING)
+				.define('S', Tags.Items.STRINGS)
 				.define('P', Blocks.STICKY_PISTON)
 				.unlockedBy(HAS_UPGRADE_BASE, has(ModItems.UPGRADE_BASE.get()))
 				.save(recipeOutput);
@@ -108,9 +108,9 @@ public class SBPRecipeProvider extends RecipeProvider {
 				.pattern("SIS")
 				.pattern("ILI")
 				.pattern("SIS")
-				.define('L', Tags.Items.LEATHER)
+				.define('L', Tags.Items.LEATHERS)
 				.define('I', Tags.Items.INGOTS_IRON)
-				.define('S', Tags.Items.STRING)
+				.define('S', Tags.Items.STRINGS)
 				.unlockedBy("has_leather", hasLeather())
 				.save(recipeOutput);
 
@@ -131,7 +131,7 @@ public class SBPRecipeProvider extends RecipeProvider {
 				.pattern("RSR")
 				.define('B', ModItems.UPGRADE_BASE.get())
 				.define('R', Tags.Items.DUSTS_REDSTONE)
-				.define('S', Tags.Items.STRING)
+				.define('S', Tags.Items.STRINGS)
 				.unlockedBy(HAS_UPGRADE_BASE, has(ModItems.UPGRADE_BASE.get()))
 				.save(recipeOutput);
 
@@ -177,7 +177,7 @@ public class SBPRecipeProvider extends RecipeProvider {
 				.define('R', Tags.Items.DUSTS_REDSTONE)
 				.define('M', ModItems.MAGNET_UPGRADE.get())
 				.unlockedBy("has_magnet_upgrade", has(ModItems.MAGNET_UPGRADE.get()))
-				.save(recipeOutput, new ResourceLocation(SophisticatedBackpacks.getRegistryName("advanced_magnet_upgrade_from_basic")));
+				.save(recipeOutput, ResourceLocation.fromNamespaceAndPath(SophisticatedBackpacks.getRegistryName("advanced_magnet_upgrade_from_basic")));
 
 		ShapeBasedRecipeBuilder.shaped(ModItems.FEEDING_UPGRADE.get())
 				.pattern(" C ")
@@ -219,7 +219,7 @@ public class SBPRecipeProvider extends RecipeProvider {
 				.pattern("ROR")
 				.define('B', ModItems.UPGRADE_BASE.get())
 				.define('E', Tags.Items.ENDER_PEARLS)
-				.define('O', Tags.Items.OBSIDIAN)
+				.define('O', Tags.Items.OBSIDIANS)
 				.define('R', Tags.Items.DUSTS_REDSTONE)
 				.unlockedBy(HAS_UPGRADE_BASE, has(ModItems.UPGRADE_BASE.get()))
 				.save(recipeOutput);
@@ -395,7 +395,7 @@ public class SBPRecipeProvider extends RecipeProvider {
 				.define('S', ModItems.STACK_UPGRADE_STARTER_TIER.get())
 				.define('I', Tags.Items.STORAGE_BLOCKS_IRON)
 				.unlockedBy(HAS_UPGRADE_BASE, has(ModItems.UPGRADE_BASE.get()))
-				.save(recipeOutput, new ResourceLocation(SophisticatedBackpacks.getRegistryName("stack_upgrade_tier_1_from_starter")));
+				.save(recipeOutput, ResourceLocation.fromNamespaceAndPath(SophisticatedBackpacks.getRegistryName("stack_upgrade_tier_1_from_starter")));
 
 		ShapeBasedRecipeBuilder.shaped(ModItems.STACK_UPGRADE_TIER_2.get())
 				.pattern("GGG")
@@ -653,6 +653,6 @@ public class SBPRecipeProvider extends RecipeProvider {
 	}
 
 	private static Criterion<?> hasLeather() {
-		return inventoryTrigger(ItemPredicate.Builder.item().of(Tags.Items.LEATHER).build());
+		return inventoryTrigger(ItemPredicate.Builder.item().of(Tags.Items.LEATHERS).build());
 	}
 }

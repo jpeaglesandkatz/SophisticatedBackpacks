@@ -13,7 +13,7 @@ import net.p3pp3rf1y.sophisticatedbackpacks.init.ModItems;
 
 public class CopyBackpackDataFunction implements LootItemFunction {
 	private static final CopyBackpackDataFunction INSTANCE = new CopyBackpackDataFunction();
-	public static final Codec<CopyBackpackDataFunction> CODEC = MapCodec.unit(INSTANCE).stable().codec();
+	public static final MapCodec<CopyBackpackDataFunction> CODEC = MapCodec.unit(INSTANCE).stable();
 	private CopyBackpackDataFunction() {}
 
 	@Override

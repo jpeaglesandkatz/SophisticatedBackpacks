@@ -142,7 +142,7 @@ public class ModItems {
 	public static final Supplier<BackpackItem> NETHERITE_BACKPACK = ITEMS.register("netherite_backpack",
 			() -> new BackpackItem(Config.SERVER.netheriteBackpack.inventorySlotCount::get, Config.SERVER.netheriteBackpack.upgradeSlotCount::get, ModBlocks.NETHERITE_BACKPACK, Item.Properties::fireResistant));
 
-	public static final ResourceLocation BACKPACK_UPGRADE_TAG_NAME = new ResourceLocation(SophisticatedBackpacks.MOD_ID, "upgrade");
+	public static final ResourceLocation BACKPACK_UPGRADE_TAG_NAME = ResourceLocation.fromNamespaceAndPath(SophisticatedBackpacks.MOD_ID, "upgrade");
 
 	public static final TagKey<Item> BACKPACK_UPGRADE_TAG = TagKey.create(Registries.ITEM, BACKPACK_UPGRADE_TAG_NAME);
 
@@ -249,7 +249,7 @@ public class ModItems {
 	public static final Supplier<RecipeSerializer<?>> SMITHING_BACKPACK_UPGRADE_RECIPE_SERIALIZER = RECIPE_SERIALIZERS.register("smithing_backpack_upgrade", SmithingBackpackUpgradeRecipe.Serializer::new);
 	public static final Supplier<RecipeSerializer<?>> BASIC_BACKPACK_RECIPE_SERIALIZER = RECIPE_SERIALIZERS.register("basic_backpack", BasicBackpackRecipe.Serializer::new);
 
-	public static final Supplier<LootItemFunctionType> COPY_BACKPACK_DATA = LOOT_FUNCTION_TYPES.register("copy_backpack_data", () -> new LootItemFunctionType(CopyBackpackDataFunction.CODEC));
+	public static final Supplier<LootItemFunctionType<CopyBackpackDataFunction>> COPY_BACKPACK_DATA = LOOT_FUNCTION_TYPES.register("copy_backpack_data", () -> new LootItemFunctionType<>(CopyBackpackDataFunction.CODEC));
 	public static final Supplier<LootItemConditionType> LOOT_ENABLED_CONDITION = LOOT_CONDITION_TYPES.register("loot_enabled", () -> new LootItemConditionType(SBLootEnabledCondition.CODEC));
 	public static final Supplier<Codec<SBLootModifierProvider.InjectLootModifier>> INJECT_LOOT = LOOT_MODIFIERS.register("inject_loot", () -> SBLootModifierProvider.InjectLootModifier.CODEC);
 

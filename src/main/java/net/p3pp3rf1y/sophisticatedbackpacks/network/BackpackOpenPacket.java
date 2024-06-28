@@ -6,7 +6,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.SimpleMenuProvider;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.InventoryMenu;
-import net.neoforged.neoforge.network.handling.PlayPayloadContext;
+import net.neoforged.neoforge.network.handling.IPayloadContext;
 import net.p3pp3rf1y.sophisticatedbackpacks.SophisticatedBackpacks;
 import net.p3pp3rf1y.sophisticatedbackpacks.common.gui.BackpackContainer;
 import net.p3pp3rf1y.sophisticatedbackpacks.common.gui.BackpackContext;
@@ -16,7 +16,7 @@ import net.p3pp3rf1y.sophisticatedbackpacks.util.PlayerInventoryProvider;
 import javax.annotation.Nullable;
 
 public class BackpackOpenPacket implements CustomPacketPayload {
-	public static final ResourceLocation ID = new ResourceLocation(SophisticatedBackpacks.MOD_ID, "backpack_open");
+	public static final ResourceLocation ID = ResourceLocation.fromNamespaceAndPath(SophisticatedBackpacks.MOD_ID, "backpack_open");
 	private static final int CHEST_SLOT = 38;
 	private static final int OFFHAND_SLOT = 40;
 	private final int slotIndex;
@@ -45,7 +45,7 @@ public class BackpackOpenPacket implements CustomPacketPayload {
 		this(buffer.readInt(), buffer.readUtf(), buffer.readUtf());
 	}
 
-	public void handle(PlayPayloadContext context) {
+	public void handle(IPayloadContext context) {
 		context.workHandler().execute(() -> context.player().ifPresent(this::handlePacket));
 	}
 

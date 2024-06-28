@@ -46,7 +46,7 @@ public class DyeRecipesMaker {
 		BackpackWrapper.fromData(backpackOutput).setColors(clothColor, trimColor);
 
 		ShapedRecipePattern pattern = new ShapedRecipePattern(3, 1, ingredients, Optional.empty());
-		ResourceLocation id = new ResourceLocation(SophisticatedBackpacks.MOD_ID, "multiple_colors");
+		ResourceLocation id = ResourceLocation.fromNamespaceAndPath(SophisticatedBackpacks.MOD_ID, "multiple_colors");
 		recipes.add(new RecipeHolder<>(id, new ShapedRecipe("", CraftingBookCategory.MISC, pattern, backpackOutput)));
 	}
 
@@ -59,7 +59,7 @@ public class DyeRecipesMaker {
 			ingredients.add(Ingredient.of(color.getTag()));
 
 			ShapedRecipePattern pattern = new ShapedRecipePattern(1, 2, ingredients, Optional.empty());
-			ResourceLocation id = new ResourceLocation(SophisticatedBackpacks.MOD_ID, "single_color_" + color.getSerializedName());
+			ResourceLocation id = ResourceLocation.fromNamespaceAndPath(SophisticatedBackpacks.MOD_ID, "single_color_" + color.getSerializedName());
 			recipes.add(new RecipeHolder<>(id, new ShapedRecipe("", CraftingBookCategory.MISC, pattern, backpackOutput)));
 		}
 	}

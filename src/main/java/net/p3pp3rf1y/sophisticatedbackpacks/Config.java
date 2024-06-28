@@ -272,8 +272,8 @@ public class Config {
 					String entityRegistryName = entityLoot[0];
 					String lootTableName = entityLoot[1];
 
-					BuiltInRegistries.ENTITY_TYPE.getOptional(new ResourceLocation(entityRegistryName))
-							.ifPresent(entityType -> entityLootTables.put(entityType, lootTableName.equals("null") ? null : new ResourceLocation(lootTableName)));
+					BuiltInRegistries.ENTITY_TYPE.getOptional(ResourceLocation.fromNamespaceAndPath(entityRegistryName))
+							.ifPresent(entityType -> entityLootTables.put(entityType, lootTableName.equals("null") ? null : ResourceLocation.fromNamespaceAndPath(lootTableName)));
 				}
 			}
 
@@ -361,7 +361,7 @@ public class Config {
 				noInteractionBlocksSet = new HashSet<>();
 
 				for (String disallowedItemName : noInteractionBlocksList.get()) {
-					ResourceLocation registryName = new ResourceLocation(disallowedItemName);
+					ResourceLocation registryName = ResourceLocation.fromNamespaceAndPath(disallowedItemName);
 					if (BuiltInRegistries.BLOCK.containsKey(registryName)) {
 						noInteractionBlocksSet.add(BuiltInRegistries.BLOCK.get(registryName));
 					}
@@ -394,7 +394,7 @@ public class Config {
 				noConnnectionBlocksSet = new HashSet<>();
 
 				for (String disallowedItemName : noConnectionBlocksList.get()) {
-					ResourceLocation registryName = new ResourceLocation(disallowedItemName);
+					ResourceLocation registryName = ResourceLocation.fromNamespaceAndPath(disallowedItemName);
 					if (BuiltInRegistries.BLOCK.containsKey(registryName)) {
 						noConnnectionBlocksSet.add(BuiltInRegistries.BLOCK.get(registryName));
 					}
@@ -435,7 +435,7 @@ public class Config {
 				disallowedItemsSet = new HashSet<>();
 
 				for (String disallowedItemName : disallowedItemsList.get()) {
-					ResourceLocation registryName = new ResourceLocation(disallowedItemName);
+					ResourceLocation registryName = ResourceLocation.fromNamespaceAndPath(disallowedItemName);
 					BuiltInRegistries.ITEM.getOptional(registryName).ifPresent(disallowedItemsSet::add);
 				}
 			}

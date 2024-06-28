@@ -6,7 +6,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
-import net.neoforged.neoforge.network.handling.PlayPayloadContext;
+import net.neoforged.neoforge.network.handling.IPayloadContext;
 import net.p3pp3rf1y.sophisticatedbackpacks.SophisticatedBackpacks;
 import net.p3pp3rf1y.sophisticatedbackpacks.api.IBlockToolSwapUpgrade;
 import net.p3pp3rf1y.sophisticatedbackpacks.backpack.wrapper.BackpackWrapper;
@@ -16,7 +16,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public class BlockToolSwapPacket implements CustomPacketPayload {
 
-	public static final ResourceLocation ID = new ResourceLocation(SophisticatedBackpacks.MOD_ID, "block_tool_swap");
+	public static final ResourceLocation ID = ResourceLocation.fromNamespaceAndPath(SophisticatedBackpacks.MOD_ID, "block_tool_swap");
 	private final BlockPos pos;
 
 	public BlockToolSwapPacket(BlockPos pos) {
@@ -27,7 +27,7 @@ public class BlockToolSwapPacket implements CustomPacketPayload {
 		this(BlockPos.of(buffer.readLong()));
 	}
 
-	public void handle(PlayPayloadContext context) {
+	public void handle(IPayloadContext context) {
 		context.workHandler().execute(() -> context.player().ifPresent(this::handlePacket));
 	}
 

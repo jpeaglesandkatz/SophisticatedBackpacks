@@ -7,13 +7,13 @@ import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
-import net.neoforged.neoforge.network.handling.PlayPayloadContext;
+import net.neoforged.neoforge.network.handling.IPayloadContext;
 import net.p3pp3rf1y.sophisticatedbackpacks.SophisticatedBackpacks;
 import net.p3pp3rf1y.sophisticatedbackpacks.util.InventoryInteractionHelper;
 import net.p3pp3rf1y.sophisticatedbackpacks.util.PlayerInventoryProvider;
 
 public class InventoryInteractionPacket implements CustomPacketPayload {
-	public static final ResourceLocation ID = new ResourceLocation(SophisticatedBackpacks.MOD_ID, "inventory_interaction");
+	public static final ResourceLocation ID = ResourceLocation.fromNamespaceAndPath(SophisticatedBackpacks.MOD_ID, "inventory_interaction");
 	private final BlockPos pos;
 	private final Direction face;
 
@@ -26,7 +26,7 @@ public class InventoryInteractionPacket implements CustomPacketPayload {
 		this(buffer.readBlockPos(), buffer.readEnum(Direction.class));
 	}
 
-	public void handle(PlayPayloadContext context) {
+	public void handle(IPayloadContext context) {
 		context.workHandler().execute(() -> context.player().ifPresent(this::handlePacket));
 	}
 

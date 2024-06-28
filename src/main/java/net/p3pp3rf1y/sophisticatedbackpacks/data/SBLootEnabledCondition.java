@@ -11,7 +11,7 @@ import net.p3pp3rf1y.sophisticatedbackpacks.init.ModItems;
 public class SBLootEnabledCondition implements LootItemCondition {
 
 	private static final SBLootEnabledCondition INSTANCE = new SBLootEnabledCondition();
-	public static final Codec<SBLootEnabledCondition> CODEC = MapCodec.unit(INSTANCE).stable().codec();
+	public static final MapCodec<SBLootEnabledCondition> CODEC = MapCodec.unit(INSTANCE).stable();
 	private SBLootEnabledCondition() {
 	}
 

@@ -6,7 +6,7 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
-import net.neoforged.neoforge.network.handling.PlayPayloadContext;
+import net.neoforged.neoforge.network.handling.IPayloadContext;
 import net.p3pp3rf1y.sophisticatedbackpacks.SophisticatedBackpacks;
 import net.p3pp3rf1y.sophisticatedbackpacks.backpack.BackpackStorage;
 import net.p3pp3rf1y.sophisticatedcore.inventory.InventoryHandler;
@@ -16,7 +16,7 @@ import net.p3pp3rf1y.sophisticatedcore.upgrades.UpgradeHandler;
 import java.util.UUID;
 
 public class RequestBackpackInventoryContentsPacket implements CustomPacketPayload {
-	public static final ResourceLocation ID = new ResourceLocation(SophisticatedBackpacks.MOD_ID, "request_backpack_inventory_contents");
+	public static final ResourceLocation ID = ResourceLocation.fromNamespaceAndPath(SophisticatedBackpacks.MOD_ID, "request_backpack_inventory_contents");
 	private final UUID backpackUuid;
 
 	public RequestBackpackInventoryContentsPacket(UUID backpackUuid) {
@@ -27,7 +27,7 @@ public class RequestBackpackInventoryContentsPacket implements CustomPacketPaylo
 		this(buffer.readUUID());
 	}
 
-	public void handle(PlayPayloadContext context) {
+	public void handle(IPayloadContext context) {
 		context.workHandler().execute(() -> context.player().ifPresent(this::handlePacket));
 	}
 

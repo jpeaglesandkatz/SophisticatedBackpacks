@@ -82,7 +82,7 @@ public class BackpackDynamicModel implements IUnbakedGeometry<BackpackDynamicMod
 
 		public static final Vector3f DEFAULT_ROTATION = new Vector3f(0.0F, 0.0F, 0.0F);
 		private static final ItemTransforms ITEM_TRANSFORMS = createItemTransforms();
-		private static final ResourceLocation BACKPACK_MODULES_TEXTURE = new ResourceLocation("sophisticatedbackpacks:block/backpack_modules");
+		private static final ResourceLocation BACKPACK_MODULES_TEXTURE = ResourceLocation.fromNamespaceAndPath("sophisticatedbackpacks:block/backpack_modules");
 
 		@SuppressWarnings("java:S4738")
 		//ItemTransforms require Guava ImmutableMap to be passed in so no way to change that to java Map

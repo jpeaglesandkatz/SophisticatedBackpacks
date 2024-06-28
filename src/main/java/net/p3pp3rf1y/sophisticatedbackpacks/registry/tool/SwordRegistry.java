@@ -94,7 +94,7 @@ public class SwordRegistry {
 		}
 
 		private void parseSword(String swordName) {
-			BuiltInRegistries.ITEM.getOptional(new ResourceLocation(swordName))
+			BuiltInRegistries.ITEM.getOptional(ResourceLocation.fromNamespaceAndPath(swordName))
 					.ifPresentOrElse(
 							SWORD_ITEMS::add,
 							() -> {

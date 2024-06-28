@@ -7,7 +7,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.SimpleMenuProvider;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.neoforge.network.handling.PlayPayloadContext;
+import net.neoforged.neoforge.network.handling.IPayloadContext;
 import net.p3pp3rf1y.sophisticatedbackpacks.Config;
 import net.p3pp3rf1y.sophisticatedbackpacks.SophisticatedBackpacks;
 import net.p3pp3rf1y.sophisticatedbackpacks.backpack.wrapper.BackpackWrapper;
@@ -19,7 +19,7 @@ import net.p3pp3rf1y.sophisticatedcore.settings.SettingsManager;
 import net.p3pp3rf1y.sophisticatedcore.settings.main.MainSettingsCategory;
 
 public class AnotherPlayerBackpackOpenPacket implements CustomPacketPayload {
-	public static final ResourceLocation ID = new ResourceLocation(SophisticatedBackpacks.MOD_ID, "another_player_backpack_open");
+	public static final ResourceLocation ID = ResourceLocation.fromNamespaceAndPath(SophisticatedBackpacks.MOD_ID, "another_player_backpack_open");
 	private final int anotherPlayerId;
 
 	public AnotherPlayerBackpackOpenPacket(int anotherPlayerId) {
@@ -30,7 +30,7 @@ public class AnotherPlayerBackpackOpenPacket implements CustomPacketPayload {
 		this.anotherPlayerId = buffer.readInt();
 	}
 
-	public void handle(PlayPayloadContext context) {
+	public void handle(IPayloadContext context) {
 		context.workHandler().execute(() -> context.player().ifPresent(this::handlePacket));
 	}
 

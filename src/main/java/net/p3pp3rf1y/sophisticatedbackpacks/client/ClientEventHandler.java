@@ -38,7 +38,7 @@ public class ClientEventHandler {
 	}
 
 	private static final String BACKPACK_REG_NAME = "backpack";
-	public static final ModelLayerLocation BACKPACK_LAYER = new ModelLayerLocation(new ResourceLocation(SophisticatedBackpacks.MOD_ID, BACKPACK_REG_NAME), "main");
+	public static final ModelLayerLocation BACKPACK_LAYER = new ModelLayerLocation(ResourceLocation.fromNamespaceAndPath(SophisticatedBackpacks.MOD_ID, BACKPACK_REG_NAME), "main");
 
 	public static void registerHandlers(IEventBus modBus) {
 		modBus.addListener(ClientEventHandler::onModelRegistry);
@@ -58,7 +58,7 @@ public class ClientEventHandler {
 	}
 
 	private static void onModelRegistry(ModelEvent.RegisterGeometryLoaders event) {
-		event.register(new ResourceLocation(SophisticatedBackpacks.MOD_ID, BACKPACK_REG_NAME), BackpackDynamicModel.Loader.INSTANCE);
+		event.register(ResourceLocation.fromNamespaceAndPath(SophisticatedBackpacks.MOD_ID, BACKPACK_REG_NAME), BackpackDynamicModel.Loader.INSTANCE);
 	}
 
 	public static void registerReloadListener(RegisterClientReloadListenersEvent event) {

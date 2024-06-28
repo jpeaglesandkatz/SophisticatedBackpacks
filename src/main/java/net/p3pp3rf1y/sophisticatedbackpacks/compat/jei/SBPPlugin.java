@@ -41,7 +41,7 @@ public class SBPPlugin implements IModPlugin {
 
 	@Override
 	public ResourceLocation getPluginUid() {
-		return new ResourceLocation(SophisticatedBackpacks.MOD_ID, "default");
+		return ResourceLocation.fromNamespaceAndPath(SophisticatedBackpacks.MOD_ID, "default");
 	}
 
 	@Override
