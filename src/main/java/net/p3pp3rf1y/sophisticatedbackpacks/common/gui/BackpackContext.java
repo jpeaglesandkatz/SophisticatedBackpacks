@@ -9,16 +9,16 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.neoforged.neoforge.network.PacketDistributor;
 import net.p3pp3rf1y.sophisticatedbackpacks.SophisticatedBackpacks;
 import net.p3pp3rf1y.sophisticatedbackpacks.backpack.BackpackBlockEntity;
 import net.p3pp3rf1y.sophisticatedbackpacks.backpack.BackpackItem;
 import net.p3pp3rf1y.sophisticatedbackpacks.backpack.wrapper.BackpackWrapper;
 import net.p3pp3rf1y.sophisticatedbackpacks.backpack.wrapper.IBackpackWrapper;
-import net.p3pp3rf1y.sophisticatedbackpacks.network.SyncClientInfoPacket;
+import net.p3pp3rf1y.sophisticatedbackpacks.network.SyncClientInfoPayload;
 import net.p3pp3rf1y.sophisticatedbackpacks.util.PlayerInventoryHandler;
 import net.p3pp3rf1y.sophisticatedbackpacks.util.PlayerInventoryProvider;
 import net.p3pp3rf1y.sophisticatedcore.api.IStorageWrapper;
-import net.p3pp3rf1y.sophisticatedcore.network.PacketHelper;
 import net.p3pp3rf1y.sophisticatedcore.util.WorldHelper;
 
 import javax.annotation.Nullable;
@@ -155,7 +155,7 @@ public abstract class BackpackContext {
 				SophisticatedBackpacks.LOGGER.error("Error getting backpack wrapper - Unable to find inventory handler for \"{}\"", handlerName);
 				return IBackpackWrapper.Noop.INSTANCE;
 			}
-			return BackpackWrapper.fromData(inventoryHandler.get().getStackInSlot(player, identifier, backpackSlotIndex));
+			return BackpackWrapper.fromStack(inventoryHandler.get().getStackInSlot(player, identifier, backpackSlotIndex));
 		}
 
 		@Override
@@ -166,7 +166,9 @@ public abstract class BackpackContext {
 				// which resulted in issues where client would happily modify nbt instance which is used on server as well and follow up updates on client would also mess up
 				// as they are free to clear state which caused the new cleared state write into the already existing nbt and server nbt as all were the same instanced
 				CompoundTag modificationSafeRenderInfoNbt = backpackWrapper.getRenderInfo().getNbt().copy();
-				PacketHelper.sendToPlayer(new SyncClientInfoPacket(backpackSlotIndex, modificationSafeRenderInfoNbt, backpackWrapper.getColumnsTaken()), (ServerPlayer) player);
+				if (player instanceof ServerPlayer serverPlayer) {
+					PacketDistributor.sendToPlayer(serverPlayer, new SyncClientInfoPayload(backpackSlotIndex, modificationSafeRenderInfoNbt, backpackWrapper.getColumnsTaken()));
+				}
 			}
 		}
 
@@ -234,7 +236,7 @@ public abstract class BackpackContext {
 						if (!(stackInSlot.getItem() instanceof BackpackItem)) {
 							return IBackpackWrapper.Noop.INSTANCE;
 						}
-						return BackpackWrapper.fromData(stackInSlot);
+						return BackpackWrapper.fromStack(stackInSlot);
 					}).orElse(IBackpackWrapper.Noop.INSTANCE);
 		}
 
@@ -365,7 +367,7 @@ public abstract class BackpackContext {
 						if (!(stackInSlot.getItem() instanceof BackpackItem)) {
 							return IBackpackWrapper.Noop.INSTANCE;
 						}
-						return BackpackWrapper.fromData(stackInSlot);
+						return BackpackWrapper.fromStack(stackInSlot);
 					}).orElse(IBackpackWrapper.Noop.INSTANCE);
 		}
 

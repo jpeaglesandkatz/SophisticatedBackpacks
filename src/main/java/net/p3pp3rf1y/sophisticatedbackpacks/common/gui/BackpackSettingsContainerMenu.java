@@ -5,14 +5,14 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
+import net.neoforged.neoforge.network.PacketDistributor;
 import net.p3pp3rf1y.sophisticatedbackpacks.backpack.BackpackStorage;
 import net.p3pp3rf1y.sophisticatedbackpacks.backpack.wrapper.BackpackSettingsHandler;
 import net.p3pp3rf1y.sophisticatedbackpacks.backpack.wrapper.IBackpackWrapper;
-import net.p3pp3rf1y.sophisticatedbackpacks.network.BackpackContentsPacket;
+import net.p3pp3rf1y.sophisticatedbackpacks.network.BackpackContentsPayload;
 import net.p3pp3rf1y.sophisticatedbackpacks.settings.BackpackMainSettingsCategory;
 import net.p3pp3rf1y.sophisticatedbackpacks.settings.BackpackMainSettingsContainer;
 import net.p3pp3rf1y.sophisticatedcore.common.gui.SettingsContainerMenu;
-import net.p3pp3rf1y.sophisticatedcore.network.PacketHelper;
 
 import static net.p3pp3rf1y.sophisticatedbackpacks.init.ModItems.SETTINGS_CONTAINER_TYPE;
 
@@ -66,7 +66,9 @@ public class BackpackSettingsContainerMenu extends SettingsContainerMenu<IBackpa
 				CompoundTag settingsNbt = storageWrapper.getSettingsHandler().getNbt();
 				if (!settingsNbt.isEmpty()) {
 					settingsContents.put(BackpackSettingsHandler.SETTINGS_TAG, settingsNbt);
-					PacketHelper.sendToPlayer(new BackpackContentsPacket(uuid, settingsContents), (ServerPlayer) player);
+					if (player instanceof ServerPlayer serverPlayer) {
+						PacketDistributor.sendToPlayer(serverPlayer, new BackpackContentsPayload(uuid, settingsContents));
+					}
 				}
 			});
 		}

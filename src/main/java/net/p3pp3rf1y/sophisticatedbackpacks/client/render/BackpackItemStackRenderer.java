@@ -38,7 +38,7 @@ public class BackpackItemStackRenderer extends BlockEntityWithoutLevelRenderer {
 		model.getRenderPasses(stack, true).forEach(bakedModel -> bakedModel.getRenderTypes(stack, true).forEach(renderType -> {
 			VertexConsumer ivertexbuilder = ItemRenderer.getFoilBufferDirect(buffer, renderType, true, stack.hasFoil());
 			itemRenderer.renderModelLists(bakedModel, stack, combinedLight, combinedOverlay, matrixStack, ivertexbuilder);
-			IBackpackWrapper backpackWrapper = BackpackWrapper.fromData(stack);
+			IBackpackWrapper backpackWrapper = BackpackWrapper.fromStack(stack);
 			backpackWrapper.getRenderInfo().getItemDisplayRenderInfo().getDisplayItem().ifPresent(displayItem -> {
 				matrixStack.translate(0.5, 0.6, 0.25);
 				matrixStack.scale(0.5f, 0.5f, 0.5f);

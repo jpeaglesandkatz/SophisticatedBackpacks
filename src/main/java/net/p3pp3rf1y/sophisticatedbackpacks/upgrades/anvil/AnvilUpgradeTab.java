@@ -3,6 +3,7 @@ package net.p3pp3rf1y.sophisticatedbackpacks.upgrades.anvil;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.world.inventory.Slot;
@@ -81,7 +82,7 @@ public class AnvilUpgradeTab extends UpgradeSettingsTab<AnvilUpgradeContainer> {
 			return;
 		}
 		ItemStack firstItem = getContainer().getSlots().get(0).getItem();
-		if (!firstItem.hasCustomHoverName() && name.equals(firstItem.getHoverName().getString())) {
+		if (!firstItem.has(DataComponents.CUSTOM_NAME) && name.equals(firstItem.getHoverName().getString())) {
 			name = "";
 		}
 		getContainer().setItemName(name);

@@ -53,15 +53,15 @@ import static net.p3pp3rf1y.sophisticatedbackpacks.backpack.BackpackBlock.*;
 public class BackpackDynamicModel implements IUnbakedGeometry<BackpackDynamicModel> {
 	private final Map<ModelPart, UnbakedModel> modelParts;
 
-	public BackpackDynamicModel(Map<ModelPart, UnbakedModel> modelParts) {
+	private BackpackDynamicModel(Map<ModelPart, UnbakedModel> modelParts) {
 		this.modelParts = modelParts;
 	}
 
 	@Override
-	public BakedModel bake(IGeometryBakingContext context, ModelBaker baker, Function<Material, TextureAtlasSprite> spriteGetter, ModelState modelTransform, ItemOverrides overrides, ResourceLocation modelLocation) {
+	public BakedModel bake(IGeometryBakingContext context, ModelBaker baker, Function<Material, TextureAtlasSprite> spriteGetter, ModelState modelTransform, ItemOverrides overrides) {
 		ImmutableMap.Builder<ModelPart, BakedModel> builder = ImmutableMap.builder();
 		modelParts.forEach((part, model) -> {
-			BakedModel bakedModel = model.bake(baker, spriteGetter, modelTransform, modelLocation);
+			BakedModel bakedModel = model.bake(baker, spriteGetter, modelTransform);
 			if (bakedModel != null) {
 				builder.put(part, bakedModel);
 			}
@@ -82,7 +82,7 @@ public class BackpackDynamicModel implements IUnbakedGeometry<BackpackDynamicMod
 
 		public static final Vector3f DEFAULT_ROTATION = new Vector3f(0.0F, 0.0F, 0.0F);
 		private static final ItemTransforms ITEM_TRANSFORMS = createItemTransforms();
-		private static final ResourceLocation BACKPACK_MODULES_TEXTURE = ResourceLocation.fromNamespaceAndPath("sophisticatedbackpacks:block/backpack_modules");
+		private static final ResourceLocation BACKPACK_MODULES_TEXTURE = ResourceLocation.fromNamespaceAndPath(SophisticatedBackpacks.MOD_ID, "block/backpack_modules");
 
 		@SuppressWarnings("java:S4738")
 		//ItemTransforms require Guava ImmutableMap to be passed in so no way to change that to java Map
@@ -295,8 +295,7 @@ public class BackpackDynamicModel implements IUnbakedGeometry<BackpackDynamicMod
 		}
 
 		private BakedQuad createQuad(List<Vector3f> vecs, float[] colors, TextureAtlasSprite sprite, Direction face, float u1, float u2, float v1, float v2) {
-			var bakedQuad = new BakedQuad[1];
-			QuadBakingVertexConsumer quadBaker = new QuadBakingVertexConsumer(q -> bakedQuad[0] = q);
+			QuadBakingVertexConsumer quadBaker = new QuadBakingVertexConsumer();
 			quadBaker.setSprite(sprite);
 			Vec3i dirVec = face.getNormal();
 			quadBaker.setDirection(face);
@@ -308,11 +307,11 @@ public class BackpackDynamicModel implements IUnbakedGeometry<BackpackDynamicMod
 			v1 = sprite.getV0() + v1 / 4f * sprite.uvShrinkRatio();
 			v2 = sprite.getV0() + v2 / 4f * sprite.uvShrinkRatio();
 
-			quadBaker.vertex(vecs.get(0).x(), vecs.get(0).y(), vecs.get(0).z()).color(colors[1], colors[2], colors[3], colors[0]).uv(u1, v1).normal(dirVec.getX(), dirVec.getY(), dirVec.getZ()).endVertex();
-			quadBaker.vertex(vecs.get(1).x(), vecs.get(1).y(), vecs.get(1).z()).color(colors[1], colors[2], colors[3], colors[0]).uv(u1, v2).normal(dirVec.getX(), dirVec.getY(), dirVec.getZ()).endVertex();
-			quadBaker.vertex(vecs.get(2).x(), vecs.get(2).y(), vecs.get(2).z()).color(colors[1], colors[2], colors[3], colors[0]).uv(u2, v2).normal(dirVec.getX(), dirVec.getY(), dirVec.getZ()).endVertex();
-			quadBaker.vertex(vecs.get(3).x(), vecs.get(3).y(), vecs.get(3).z()).color(colors[1], colors[2], colors[3], colors[0]).uv(u2, v1).normal(dirVec.getX(), dirVec.getY(), dirVec.getZ()).endVertex();
-			return bakedQuad[0];
+			quadBaker.addVertex(vecs.get(0).x(), vecs.get(0).y(), vecs.get(0).z()).setColor(colors[1], colors[2], colors[3], colors[0]).setUv(u1, v1).setNormal(dirVec.getX(), dirVec.getY(), dirVec.getZ());
+			quadBaker.addVertex(vecs.get(1).x(), vecs.get(1).y(), vecs.get(1).z()).setColor(colors[1], colors[2], colors[3], colors[0]).setUv(u1, v2).setNormal(dirVec.getX(), dirVec.getY(), dirVec.getZ());
+			quadBaker.addVertex(vecs.get(2).x(), vecs.get(2).y(), vecs.get(2).z()).setColor(colors[1], colors[2], colors[3], colors[0]).setUv(u2, v2).setNormal(dirVec.getX(), dirVec.getY(), dirVec.getZ());
+			quadBaker.addVertex(vecs.get(3).x(), vecs.get(3).y(), vecs.get(3).z()).setColor(colors[1], colors[2], colors[3], colors[0]).setUv(u2, v1).setNormal(dirVec.getX(), dirVec.getY(), dirVec.getZ());
+			return quadBaker.bakeQuad();
 		}
 
 		private void rotate(Vector3f posIn, Matrix4f transform) {
@@ -335,7 +334,7 @@ public class BackpackDynamicModel implements IUnbakedGeometry<BackpackDynamicMod
 			backpackModel.tankRight = false;
 			backpackModel.tankLeft = false;
 			backpackModel.battery = false;
-			IBackpackWrapper backpackWrapper = BackpackWrapper.fromData(stack);
+			IBackpackWrapper backpackWrapper = BackpackWrapper.fromStack(stack);
 			RenderInfo renderInfo = backpackWrapper.getRenderInfo();
 			Map<TankPosition, IRenderedTankUpgrade.TankRenderInfo> tankRenderInfos = renderInfo.getTankRenderInfos();
 			tankRenderInfos.forEach((pos, info) -> {

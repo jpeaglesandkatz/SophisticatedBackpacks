@@ -22,6 +22,6 @@ public class ModBlockColors {
 	}
 
 	private static int getDefaultColor(int tintIndex) {
-		return tintIndex == 0 ? BackpackWrapper.DEFAULT_CLOTH_COLOR : BackpackWrapper.DEFAULT_BORDER_COLOR;
+		return tintIndex == 0 ? BackpackWrapper.DEFAULT_MAIN_COLOR : BackpackWrapper.DEFAULT_ACCENT_COLOR;
 	}
 }

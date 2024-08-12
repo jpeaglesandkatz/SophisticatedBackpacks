@@ -1,8 +1,8 @@
 package net.p3pp3rf1y.sophisticatedbackpacks.crafting;
 
-import net.minecraft.core.RegistryAccess;
-import net.minecraft.world.inventory.CraftingContainer;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.CraftingInput;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.ShapedRecipe;
 import net.p3pp3rf1y.sophisticatedbackpacks.backpack.wrapper.BackpackWrapper;
@@ -24,14 +24,14 @@ public class BasicBackpackRecipe extends ShapedRecipe implements IWrapperRecipe<
 	}
 
 	@Override
-	public ItemStack assemble(CraftingContainer inv, RegistryAccess registryAccess) {
-		ItemStack result = super.assemble(inv, registryAccess);
+	public ItemStack assemble(CraftingInput inv, HolderLookup.Provider registries) {
+		ItemStack result = super.assemble(inv, registries);
 		removeUuid(result);
 		return result;
 	}
 
 	private void removeUuid(ItemStack backpack) {
-		BackpackWrapper.fromData(backpack).removeContentsUuid();
+		BackpackWrapper.fromStack(backpack).removeContentsUuid();
 	}
 
 	@Override

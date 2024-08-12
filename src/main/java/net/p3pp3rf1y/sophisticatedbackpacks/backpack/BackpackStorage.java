@@ -1,5 +1,6 @@
 package net.p3pp3rf1y.sophisticatedbackpacks.backpack;
 
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtUtils;
@@ -40,7 +41,7 @@ public class BackpackStorage extends SavedData {
 		return clientStorageCopy;
 	}
 
-	public static BackpackStorage load(CompoundTag nbt) {
+	public static BackpackStorage load(CompoundTag nbt, HolderLookup.Provider registries) {
 		BackpackStorage storage = new BackpackStorage();
 		readBackpackContents(nbt, storage);
 		readAccessLogs(nbt, storage);
@@ -64,7 +65,7 @@ public class BackpackStorage extends SavedData {
 	}
 
 	@Override
-	public CompoundTag save(CompoundTag compound) {
+	public CompoundTag save(CompoundTag compound, HolderLookup.Provider registries) {
 		CompoundTag ret = new CompoundTag();
 		writeBackpackContents(ret);
 		writeAccessLogs(ret);

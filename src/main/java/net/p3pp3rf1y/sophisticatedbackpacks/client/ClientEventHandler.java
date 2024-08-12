@@ -3,6 +3,7 @@ package net.p3pp3rf1y.sophisticatedbackpacks.client;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.ItemEntityRenderer;
@@ -19,15 +20,19 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.client.event.*;
+import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
+import net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsEvent;
 import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.common.util.Lazy;
 import net.neoforged.neoforge.network.PacketDistributor;
 import net.p3pp3rf1y.sophisticatedbackpacks.SophisticatedBackpacks;
 import net.p3pp3rf1y.sophisticatedbackpacks.client.init.ModBlockColors;
 import net.p3pp3rf1y.sophisticatedbackpacks.client.init.ModItemColors;
 import net.p3pp3rf1y.sophisticatedbackpacks.client.render.*;
 import net.p3pp3rf1y.sophisticatedbackpacks.init.ModBlocks;
-import net.p3pp3rf1y.sophisticatedbackpacks.network.BlockPickPacket;
-import net.p3pp3rf1y.sophisticatedbackpacks.network.RequestPlayerSettingsPacket;
+import net.p3pp3rf1y.sophisticatedbackpacks.init.ModItems;
+import net.p3pp3rf1y.sophisticatedbackpacks.network.BlockPickPayload;
+import net.p3pp3rf1y.sophisticatedbackpacks.network.RequestPlayerSettingsPayload;
 
 import java.util.Map;
 
@@ -47,6 +52,7 @@ public class ClientEventHandler {
 		modBus.addListener(ClientEventHandler::registerReloadListener);
 		modBus.addListener(ModItemColors::registerItemColorHandlers);
 		modBus.addListener(ModBlockColors::registerBlockColorHandlers);
+		modBus.addListener(ClientEventHandler::registerBackpackClientExtension);
 		IEventBus eventBus = NeoForge.EVENT_BUS;
 		eventBus.addListener(ClientBackpackContentsTooltip::onWorldLoad);
 		eventBus.addListener(ClientEventHandler::handleBlockPick);
@@ -54,7 +60,7 @@ public class ClientEventHandler {
 	}
 
 	private static void onPlayerLoggingIn(ClientPlayerNetworkEvent.LoggingIn event) {
-		PacketDistributor.SERVER.noArg().send(new RequestPlayerSettingsPacket());
+		PacketDistributor.sendToServer(new RequestPlayerSettingsPayload());
 	}
 
 	private static void onModelRegistry(ModelEvent.RegisterGeometryLoaders event) {
@@ -84,6 +90,7 @@ public class ClientEventHandler {
 				livingEntityRenderer.addLayer(new BackpackLayerRenderer(livingEntityRenderer));
 			}
 		}
+
 		renderManager.renderers.forEach((e, r) -> {
 			if (r instanceof LivingEntityRenderer<?, ?> livingEntityRenderer) {
 				//noinspection rawtypes ,unchecked - this is not going to fail as the LivingRenderer makes sure the types are right, but there doesn't seem to be a way to us inference here
@@ -113,6 +120,17 @@ public class ClientEventHandler {
 			return;
 		}
 
-		PacketDistributor.SERVER.noArg().send(new BlockPickPacket(result));
+		PacketDistributor.sendToServer(new BlockPickPayload(result));
+	}
+
+	private static void registerBackpackClientExtension(RegisterClientExtensionsEvent event) {
+		event.registerItem(new IClientItemExtensions() {
+			private final Lazy<BlockEntityWithoutLevelRenderer> ister = Lazy.of(() -> new BackpackItemStackRenderer(Minecraft.getInstance().getBlockEntityRenderDispatcher(), Minecraft.getInstance().getEntityModels()));
+
+			@Override
+			public BlockEntityWithoutLevelRenderer getCustomRenderer() {
+				return ister.get();
+			}
+		}, ModItems.BACKPACK.get(), ModItems.COPPER_BACKPACK.get(), ModItems.IRON_BACKPACK.get(), ModItems.GOLD_BACKPACK.get(), ModItems.DIAMOND_BACKPACK.get(), ModItems.NETHERITE_BACKPACK.get());
 	}
 }

@@ -24,6 +24,6 @@ public class BackpackInventoryHandler extends InventoryHandler {
 	}
 
 	private boolean isBackpackWithoutInceptionUpgrade(ItemStack stack) {
-		return (stack.getItem() instanceof BackpackItem) && !BackpackWrapper.fromData(stack).getUpgradeHandler().hasUpgrade(InceptionUpgradeItem.TYPE);
+		return (stack.getItem() instanceof BackpackItem) && !BackpackWrapper.fromStack(stack).getUpgradeHandler().hasUpgrade(InceptionUpgradeItem.TYPE);
 	}
 }

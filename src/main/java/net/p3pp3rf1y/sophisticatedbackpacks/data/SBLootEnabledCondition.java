@@ -1,6 +1,5 @@
 package net.p3pp3rf1y.sophisticatedbackpacks.data;
 
-import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;

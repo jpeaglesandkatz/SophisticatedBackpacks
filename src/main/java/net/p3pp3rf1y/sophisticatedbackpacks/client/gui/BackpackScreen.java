@@ -9,7 +9,7 @@ import net.neoforged.neoforge.network.PacketDistributor;
 import net.p3pp3rf1y.sophisticatedbackpacks.backpack.BackpackItem;
 import net.p3pp3rf1y.sophisticatedbackpacks.client.KeybindHandler;
 import net.p3pp3rf1y.sophisticatedbackpacks.common.gui.BackpackContainer;
-import net.p3pp3rf1y.sophisticatedbackpacks.network.BackpackOpenPacket;
+import net.p3pp3rf1y.sophisticatedbackpacks.network.BackpackOpenPayload;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.StorageScreenBase;
 
 public class BackpackScreen extends StorageScreenBase<BackpackContainer> {
@@ -33,7 +33,7 @@ public class BackpackScreen extends StorageScreenBase<BackpackContainer> {
 				}
 				return true;
 			} else if (!getMenu().isFirstLevelStorage()) {
-				PacketDistributor.SERVER.noArg().send(new BackpackOpenPacket());
+				PacketDistributor.sendToServer(new BackpackOpenPayload());
 				return true;
 			}
 		}

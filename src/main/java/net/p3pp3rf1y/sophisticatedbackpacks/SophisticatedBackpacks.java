@@ -3,12 +3,11 @@ package net.p3pp3rf1y.sophisticatedbackpacks;
 import net.minecraft.resources.ResourceLocation;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.IEventBus;
-import net.neoforged.fml.ModLoadingContext;
+import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.config.ModConfig;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
-import net.neoforged.fml.loading.FMLEnvironment;
 import net.neoforged.neoforge.client.event.RegisterClientTooltipComponentFactoriesEvent;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.AddReloadListenerEvent;
@@ -34,12 +33,12 @@ public class SophisticatedBackpacks {
 	public final CommonEventHandler commonEventHandler = new CommonEventHandler();
 
 	@SuppressWarnings("java:S1118") //needs to be public for mod to work
-	public SophisticatedBackpacks(IEventBus modBus) {
-		ModLoadingContext.get().registerConfig(ModConfig.Type.SERVER, Config.SERVER_SPEC);
-		ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, Config.COMMON_SPEC);
+	public SophisticatedBackpacks(IEventBus modBus, Dist dist, ModContainer container) {
+		container.registerConfig(ModConfig.Type.SERVER, Config.SERVER_SPEC);
+		container.registerConfig(ModConfig.Type.COMMON, Config.COMMON_SPEC);
 		commonEventHandler.registerHandlers(modBus);
 		ModCompat.register();
-		if (FMLEnvironment.dist == Dist.CLIENT) {
+		if (dist == Dist.CLIENT) {
 			ClientEventHandler.registerHandlers(modBus);
 			modBus.addListener(KeybindHandler::registerKeyMappings);
 			modBus.addListener(SophisticatedBackpacks::registerTooltipComponent);
@@ -73,7 +72,7 @@ public class SophisticatedBackpacks {
 	}
 
 	public static ResourceLocation getRL(String regName) {
-		return ResourceLocation.fromNamespaceAndPath(getRegistryName(regName));
+		return ResourceLocation.fromNamespaceAndPath(MOD_ID, regName);
 	}
 
 	public static String getRegistryName(String regName) {

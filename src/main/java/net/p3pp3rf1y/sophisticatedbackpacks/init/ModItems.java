@@ -1,6 +1,6 @@
 package net.p3pp3rf1y.sophisticatedbackpacks.init;
 
-import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.cauldron.CauldronInteraction;
@@ -12,7 +12,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResult;
+import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.entity.player.Player;
@@ -24,6 +24,7 @@ import net.minecraft.world.item.context.DirectionalPlaceContext;
 import net.minecraft.world.item.crafting.*;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.DispenserBlock;
+import net.minecraft.world.level.block.LayeredCauldronBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.loot.functions.LootItemFunctionType;
 import net.minecraft.world.level.storage.loot.predicates.LootItemConditionType;
@@ -123,9 +124,9 @@ public class ModItems {
 
 	public static final DeferredRegister<Item> ITEMS = DeferredRegister.create(BuiltInRegistries.ITEM, SophisticatedBackpacks.MOD_ID);
 	public static final DeferredRegister<CreativeModeTab> CREATIVE_MODE_TABS = DeferredRegister.create(Registries.CREATIVE_MODE_TAB.location(), SophisticatedBackpacks.MOD_ID);
-	public static final DeferredRegister<LootItemFunctionType> LOOT_FUNCTION_TYPES = DeferredRegister.create(Registries.LOOT_FUNCTION_TYPE.location(), SophisticatedBackpacks.MOD_ID);
+	public static final DeferredRegister<LootItemFunctionType<?>> LOOT_FUNCTION_TYPES = DeferredRegister.create(Registries.LOOT_FUNCTION_TYPE.location(), SophisticatedBackpacks.MOD_ID);
 	public static final DeferredRegister<LootItemConditionType> LOOT_CONDITION_TYPES = DeferredRegister.create(Registries.LOOT_CONDITION_TYPE.location(), SophisticatedBackpacks.MOD_ID);
-	public static final DeferredRegister<Codec<? extends IGlobalLootModifier>> LOOT_MODIFIERS = DeferredRegister.create(NeoForgeRegistries.GLOBAL_LOOT_MODIFIER_SERIALIZERS, SophisticatedBackpacks.MOD_ID);
+	public static final DeferredRegister<MapCodec<? extends IGlobalLootModifier>> LOOT_MODIFIERS = DeferredRegister.create(NeoForgeRegistries.GLOBAL_LOOT_MODIFIER_SERIALIZERS, SophisticatedBackpacks.MOD_ID);
 	private static final DeferredRegister<MenuType<?>> MENU_TYPES = DeferredRegister.create(BuiltInRegistries.MENU, SophisticatedBackpacks.MOD_ID);
 	private static final DeferredRegister<EntityType<?>> ENTITY_TYPES = DeferredRegister.create(BuiltInRegistries.ENTITY_TYPE, SophisticatedBackpacks.MOD_ID);
 
@@ -218,7 +219,7 @@ public class ModItems {
 			() -> new ToolSwapperUpgradeItem(true, true));
 	public static final DeferredHolder<Item, TankUpgradeItem> TANK_UPGRADE = ITEMS.register("tank_upgrade", () -> new TankUpgradeItem(Config.SERVER.tankUpgrade, Config.SERVER.maxUpgradesPerStorage));
 	public static final DeferredHolder<Item, BatteryUpgradeItem> BATTERY_UPGRADE = ITEMS.register("battery_upgrade", () -> new BatteryUpgradeItem(Config.SERVER.batteryUpgrade, Config.SERVER.maxUpgradesPerStorage));
-	public static final DeferredHolder<Item, PumpUpgradeItem> PUMP_UPGRADE = ITEMS.register("pump_upgrade", () -> new PumpUpgradeItem(false, false, Config.SERVER.pumpUpgrade, Config.SERVER.maxUpgradesPerStorage));
+	public static final DeferredHolder<Item, PumpUpgradeItem> PUMP_UPGRADE = ITEMS.register("pump_upgrade", () -> new PumpUpgradeItem(false, true, Config.SERVER.pumpUpgrade, Config.SERVER.maxUpgradesPerStorage));
 	public static final DeferredHolder<Item, PumpUpgradeItem> ADVANCED_PUMP_UPGRADE = ITEMS.register("advanced_pump_upgrade", () -> new PumpUpgradeItem(true, true, Config.SERVER.pumpUpgrade, Config.SERVER.maxUpgradesPerStorage));
 	public static final DeferredHolder<Item, XpPumpUpgradeItem> XP_PUMP_UPGRADE = ITEMS.register("xp_pump_upgrade", () -> new XpPumpUpgradeItem(Config.SERVER.xpPumpUpgrade, Config.SERVER.maxUpgradesPerStorage));
 	public static final DeferredHolder<Item, AnvilUpgradeItem> ANVIL_UPGRADE = ITEMS.register("anvil_upgrade", AnvilUpgradeItem::new);
@@ -251,14 +252,13 @@ public class ModItems {
 
 	public static final Supplier<LootItemFunctionType<CopyBackpackDataFunction>> COPY_BACKPACK_DATA = LOOT_FUNCTION_TYPES.register("copy_backpack_data", () -> new LootItemFunctionType<>(CopyBackpackDataFunction.CODEC));
 	public static final Supplier<LootItemConditionType> LOOT_ENABLED_CONDITION = LOOT_CONDITION_TYPES.register("loot_enabled", () -> new LootItemConditionType(SBLootEnabledCondition.CODEC));
-	public static final Supplier<Codec<SBLootModifierProvider.InjectLootModifier>> INJECT_LOOT = LOOT_MODIFIERS.register("inject_loot", () -> SBLootModifierProvider.InjectLootModifier.CODEC);
+	public static final Supplier<MapCodec<SBLootModifierProvider.InjectLootModifier>> INJECT_LOOT = LOOT_MODIFIERS.register("inject_loot", () -> SBLootModifierProvider.InjectLootModifier.CODEC);
 
 	private static final DeferredRegister<AttachmentType<?>> ATTACHMENT_TYPES = DeferredRegister.create(NeoForgeRegistries.Keys.ATTACHMENT_TYPES, SophisticatedBackpacks.MOD_ID);
-	public static final Supplier<AttachmentType<BackpackWrapper>> BACKPACK_WRAPPER = ATTACHMENT_TYPES.register(
-			"backpack_wrapper", () -> AttachmentType.builder(BackpackWrapper::new).build());
 
 	public static void registerHandlers(IEventBus modBus) {
 		ITEMS.register(modBus);
+		ModDataComponents.register(modBus);
 		CREATIVE_MODE_TABS.register(modBus);
 		MENU_TYPES.register(modBus);
 		ENTITY_TYPES.register(modBus);
@@ -369,36 +369,37 @@ public class ModItems {
 	}
 
 	private static void registerCapabilities(RegisterCapabilitiesEvent event) {
-		event.registerItem(Capabilities.ItemHandler.ITEM, (stack, v) -> BackpackWrapper.fromData(stack).getInventoryForInputOutput(),
+		event.registerItem(Capabilities.ItemHandler.ITEM, (stack, v) -> BackpackWrapper.fromStack(stack).getInventoryForInputOutput(),
 				BACKPACK.get(), COPPER_BACKPACK.get(), IRON_BACKPACK.get(), GOLD_BACKPACK.get(), DIAMOND_BACKPACK.get(), NETHERITE_BACKPACK.get());
 		event.registerItem(Capabilities.FluidHandler.ITEM, (stack, v) -> {
 					if (Boolean.FALSE.equals(Config.SERVER.itemFluidHandlerEnabled.get())) {
 						return null;
 					}
-					return BackpackWrapper.fromData(stack).getItemFluidHandler().orElse(null);
+					return BackpackWrapper.fromStack(stack).getItemFluidHandler().orElse(null);
 				},
 				BACKPACK.get(), COPPER_BACKPACK.get(), IRON_BACKPACK.get(), GOLD_BACKPACK.get(), DIAMOND_BACKPACK.get(), NETHERITE_BACKPACK.get());
-		event.registerItem(Capabilities.EnergyStorage.ITEM, (stack, v) -> BackpackWrapper.fromData(stack).getEnergyStorage().orElse(null),
+		event.registerItem(Capabilities.EnergyStorage.ITEM, (stack, v) -> BackpackWrapper.fromStack(stack).getEnergyStorage().orElse(null),
 				BACKPACK.get(), COPPER_BACKPACK.get(), IRON_BACKPACK.get(), GOLD_BACKPACK.get(), DIAMOND_BACKPACK.get(), NETHERITE_BACKPACK.get());
 	}
 
 	private static class BackpackCauldronInteraction implements CauldronInteraction {
 		private static boolean hasDefaultColor(IStorageWrapper wrapper) {
-			return wrapper.getAccentColor() == BackpackWrapper.DEFAULT_BORDER_COLOR && wrapper.getMainColor() == BackpackWrapper.DEFAULT_CLOTH_COLOR;
+			return wrapper.getAccentColor() == BackpackWrapper.DEFAULT_ACCENT_COLOR && wrapper.getMainColor() == BackpackWrapper.DEFAULT_MAIN_COLOR;
 		}
 
 		@Override
-		public InteractionResult interact(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, ItemStack stack) {
-			IBackpackWrapper backpackWrapper = BackpackWrapper.fromData(stack);
+		public ItemInteractionResult interact(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, ItemStack stack) {
+			IBackpackWrapper backpackWrapper = BackpackWrapper.fromStack(stack);
 			if (hasDefaultColor(backpackWrapper)) {
-				return InteractionResult.PASS;
+				return ItemInteractionResult.FAIL;
 			}
 
 			if (!level.isClientSide) {
-				backpackWrapper.setColors(BackpackWrapper.DEFAULT_CLOTH_COLOR, BackpackWrapper.DEFAULT_BORDER_COLOR);
+				backpackWrapper.setColors(BackpackWrapper.DEFAULT_MAIN_COLOR, BackpackWrapper.DEFAULT_ACCENT_COLOR);
+				LayeredCauldronBlock.lowerFillLevel(state, level, pos);
 			}
 
-			return InteractionResult.sidedSuccess(level.isClientSide);
+			return ItemInteractionResult.sidedSuccess(level.isClientSide);
 		}
 	}
 

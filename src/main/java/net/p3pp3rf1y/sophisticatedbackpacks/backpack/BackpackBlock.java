@@ -9,6 +9,7 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.SimpleMenuProvider;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -84,25 +85,21 @@ public class BackpackBlock extends Block implements EntityBlock, SimpleWaterlogg
 		registerDefaultState(stateDefinition.any().setValue(FACING, Direction.NORTH).setValue(WATERLOGGED, false).setValue(LEFT_TANK, false).setValue(RIGHT_TANK, false));
 	}
 
-	@SuppressWarnings("deprecation")
 	@Override
 	public boolean hasAnalogOutputSignal(BlockState state) {
 		return true;
 	}
 
-	@SuppressWarnings("deprecation")
 	@Override
 	public int getAnalogOutputSignal(BlockState blockState, Level level, BlockPos pos) {
 		return WorldHelper.getBlockEntity(level, pos, BackpackBlockEntity.class).map(t -> InventoryHelper.getAnalogOutputSignal(t.getBackpackWrapper().getInventoryForInputOutput())).orElse(0);
 	}
 
-	@SuppressWarnings("deprecation")
 	@Override
 	public FluidState getFluidState(BlockState state) {
 		return Boolean.TRUE.equals(state.getValue(WATERLOGGED)) ? Fluids.WATER.getSource(false) : super.getFluidState(state);
 	}
 
-	@SuppressWarnings("deprecation")
 	@Override
 	public BlockState updateShape(BlockState stateIn, Direction facing, BlockState facingState, LevelAccessor level, BlockPos currentPos, BlockPos facingPos) {
 		if (Boolean.TRUE.equals(stateIn.getValue(WATERLOGGED))) {
@@ -129,7 +126,6 @@ public class BackpackBlock extends Block implements EntityBlock, SimpleWaterlogg
 		return WorldHelper.getBlockEntity(world, pos, BackpackBlockEntity.class).map(be -> !be.getBackpackWrapper().getUpgradeHandler().getTypeWrappers(EverlastingUpgradeItem.TYPE).isEmpty()).orElse(false);
 	}
 
-	@SuppressWarnings("deprecation")
 	@Override
 	public VoxelShape getShape(BlockState state, BlockGetter worldIn, BlockPos pos, CollisionContext context) {
 		return BackpackShapes.getShape(this, state.getValue(FACING), state.getValue(LEFT_TANK), state.getValue(RIGHT_TANK), state.getValue(BATTERY));
@@ -141,33 +137,15 @@ public class BackpackBlock extends Block implements EntityBlock, SimpleWaterlogg
 		return new BackpackBlockEntity(pos, state);
 	}
 
-	@SuppressWarnings("deprecation")
 	@Override
-	public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
+	public InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hit) {
 		if (level.isClientSide) {
 			return InteractionResult.SUCCESS;
 		}
 
-		ItemStack heldItem = player.getItemInHand(hand);
+		ItemStack heldItem = player.getMainHandItem();
 		if (player.isShiftKeyDown() && heldItem.isEmpty()) {
-			putInPlayersHandAndRemove(state, level, pos, player, hand);
-			return InteractionResult.SUCCESS;
-		}
-
-		if (!heldItem.isEmpty() && heldItem.getCapability(Capabilities.FluidHandler.ITEM) instanceof IFluidHandlerItem) {
-			WorldHelper.getBlockEntity(level, pos, BackpackBlockEntity.class)
-					.flatMap(be -> be.getBackpackWrapper().getFluidHandler()).ifPresent(backpackFluidHandler ->
-							CapabilityHelper.runOnItemHandler(player, playerInventory -> {
-								FluidActionResult resultOfEmptying = FluidUtil.tryEmptyContainerAndStow(heldItem, backpackFluidHandler, playerInventory, FluidType.BUCKET_VOLUME, player, true);
-								if (resultOfEmptying.isSuccess()) {
-									player.setItemInHand(hand, resultOfEmptying.getResult());
-								} else {
-									FluidActionResult resultOfFilling = FluidUtil.tryFillContainerAndStow(heldItem, backpackFluidHandler, playerInventory, FluidType.BUCKET_VOLUME, player, true);
-									if (resultOfFilling.isSuccess()) {
-										player.setItemInHand(hand, resultOfFilling.getResult());
-									}
-								}
-							}));
+			putInPlayersHandAndRemove(state, level, pos, player, InteractionHand.MAIN_HAND);
 			return InteractionResult.SUCCESS;
 		}
 
@@ -175,6 +153,27 @@ public class BackpackBlock extends Block implements EntityBlock, SimpleWaterlogg
 
 		player.openMenu(new SimpleMenuProvider((w, p, pl) -> new BackpackContainer(w, pl, backpackContext), getBackpackDisplayName(level, pos)), backpackContext::toBuffer);
 		return InteractionResult.SUCCESS;
+	}
+
+	@Override
+	protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
+		if (!stack.isEmpty() && stack.getCapability(Capabilities.FluidHandler.ITEM) instanceof IFluidHandlerItem) {
+			WorldHelper.getBlockEntity(level, pos, BackpackBlockEntity.class)
+					.flatMap(be -> be.getBackpackWrapper().getFluidHandler()).ifPresent(backpackFluidHandler ->
+							CapabilityHelper.runOnItemHandler(player, playerInventory -> {
+								FluidActionResult resultOfEmptying = FluidUtil.tryEmptyContainerAndStow(stack, backpackFluidHandler, playerInventory, FluidType.BUCKET_VOLUME, player, true);
+								if (resultOfEmptying.isSuccess()) {
+									player.setItemInHand(InteractionHand.MAIN_HAND, resultOfEmptying.getResult());
+								} else {
+									FluidActionResult resultOfFilling = FluidUtil.tryFillContainerAndStow(stack, backpackFluidHandler, playerInventory, FluidType.BUCKET_VOLUME, player, true);
+									if (resultOfFilling.isSuccess()) {
+										player.setItemInHand(InteractionHand.MAIN_HAND, resultOfFilling.getResult());
+									}
+								}
+							}));
+			return ItemInteractionResult.SUCCESS;
+		}
+		return super.useItemOn(stack, state, level, pos, player, hand, hitResult);
 	}
 
 	private Component getBackpackDisplayName(Level level, BlockPos pos) {
@@ -194,7 +193,6 @@ public class BackpackBlock extends Block implements EntityBlock, SimpleWaterlogg
 		level.playSound(null, pos, soundType.getBreakSound(), SoundSource.BLOCKS, (soundType.getVolume() + 1.0F) / 2.0F, soundType.getPitch() * 0.8F);
 	}
 
-	@SuppressWarnings("deprecation")
 	@Override
 	public void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean isMoving) {
 		if (!state.is(newState.getBlock())) {
@@ -212,7 +210,7 @@ public class BackpackBlock extends Block implements EntityBlock, SimpleWaterlogg
 	}
 
 	private static void stopBackpackSounds(ItemStack backpack, Level level, BlockPos pos) {
-		BackpackWrapper.fromData(backpack).getContentsUuid().ifPresent(uuid ->
+		BackpackWrapper.fromStack(backpack).getContentsUuid().ifPresent(uuid ->
 				ServerStorageSoundHandler.stopPlayingDisc(level, Vec3.atCenterOf(pos), uuid));
 	}
 
@@ -250,7 +248,6 @@ public class BackpackBlock extends Block implements EntityBlock, SimpleWaterlogg
 		return player.getMainHandItem().isEmpty() && !player.getOffhandItem().isEmpty();
 	}
 
-	@SuppressWarnings("deprecation")
 	@Override
 	public void entityInside(BlockState state, Level level, BlockPos pos, Entity entity) {
 		super.entityInside(state, level, pos, entity);

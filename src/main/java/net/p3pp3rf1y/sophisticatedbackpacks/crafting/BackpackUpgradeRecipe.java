@@ -1,8 +1,8 @@
 package net.p3pp3rf1y.sophisticatedbackpacks.crafting;
 
-import net.minecraft.core.RegistryAccess;
-import net.minecraft.world.inventory.CraftingContainer;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.CraftingInput;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.ShapedRecipe;
 import net.p3pp3rf1y.sophisticatedbackpacks.backpack.BackpackItem;
@@ -33,10 +33,10 @@ public class BackpackUpgradeRecipe extends ShapedRecipe implements IWrapperRecip
 	}
 
 	@Override
-	public ItemStack assemble(CraftingContainer inv, RegistryAccess registryAccess) {
-		ItemStack upgradedBackpack = super.assemble(inv, registryAccess);
-		getBackpack(inv).flatMap(backpack -> Optional.ofNullable(backpack.getTag())).ifPresent(tag -> upgradedBackpack.setTag(tag.copy()));
-		IBackpackWrapper wrapper = BackpackWrapper.fromData(upgradedBackpack);
+	public ItemStack assemble(CraftingInput inv, HolderLookup.Provider registries) {
+		ItemStack upgradedBackpack = super.assemble(inv, registries);
+		getBackpack(inv).map(ItemStack::getComponents).ifPresent(upgradedBackpack::applyComponents);
+		IBackpackWrapper wrapper = BackpackWrapper.fromStack(upgradedBackpack);
 
 		BackpackItem backpackItem = ((BackpackItem) upgradedBackpack.getItem());
 		wrapper.setSlotNumbers(backpackItem.getNumberOfSlots(), backpackItem.getNumberOfUpgradeSlots());
@@ -44,8 +44,8 @@ public class BackpackUpgradeRecipe extends ShapedRecipe implements IWrapperRecip
 		return upgradedBackpack;
 	}
 
-	private Optional<ItemStack> getBackpack(CraftingContainer inv) {
-		for (int slot = 0; slot < inv.getContainerSize(); slot++) {
+	private Optional<ItemStack> getBackpack(CraftingInput inv) {
+		for (int slot = 0; slot < inv.size(); slot++) {
 			ItemStack slotStack = inv.getItem(slot);
 			if (slotStack.getItem() instanceof BackpackItem) {
 				return Optional.of(slotStack);

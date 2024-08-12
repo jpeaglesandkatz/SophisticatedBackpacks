@@ -10,6 +10,7 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
+import net.neoforged.neoforge.network.PacketDistributor;
 import net.p3pp3rf1y.sophisticatedbackpacks.backpack.BackpackAccessLogger;
 import net.p3pp3rf1y.sophisticatedbackpacks.backpack.BackpackItem;
 import net.p3pp3rf1y.sophisticatedbackpacks.backpack.BackpackStorage;
@@ -17,10 +18,9 @@ import net.p3pp3rf1y.sophisticatedbackpacks.backpack.UUIDDeduplicator;
 import net.p3pp3rf1y.sophisticatedbackpacks.backpack.wrapper.BackpackSettingsHandler;
 import net.p3pp3rf1y.sophisticatedbackpacks.backpack.wrapper.IBackpackWrapper;
 import net.p3pp3rf1y.sophisticatedbackpacks.client.gui.SBPTranslationHelper;
-import net.p3pp3rf1y.sophisticatedbackpacks.network.BackpackContentsPacket;
+import net.p3pp3rf1y.sophisticatedbackpacks.network.BackpackContentsPayload;
 import net.p3pp3rf1y.sophisticatedcore.common.gui.ISyncedContainer;
 import net.p3pp3rf1y.sophisticatedcore.common.gui.StorageContainerMenuBase;
-import net.p3pp3rf1y.sophisticatedcore.network.PacketHelper;
 import net.p3pp3rf1y.sophisticatedcore.upgrades.UpgradeHandler;
 import net.p3pp3rf1y.sophisticatedcore.util.NoopStorageWrapper;
 
@@ -67,7 +67,9 @@ public class BackpackContainer extends StorageContainerMenuBase<IBackpackWrapper
 			CompoundTag settingsNbt = storageWrapper.getSettingsHandler().getNbt();
 			if (!settingsNbt.isEmpty()) {
 				settingsContents.put(BackpackSettingsHandler.SETTINGS_TAG, settingsNbt);
-				PacketHelper.sendToPlayer(new BackpackContentsPacket(uuid, settingsContents), (ServerPlayer) player);
+				if (player instanceof ServerPlayer serverPlayer) {
+					PacketDistributor.sendToPlayer(serverPlayer, new BackpackContentsPayload(uuid, settingsContents));
+				}
 			}
 		});
 	}

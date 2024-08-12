@@ -1,7 +1,11 @@
 package net.p3pp3rf1y.sophisticatedbackpacks.upgrades.toolswapper;
 
 import com.google.common.collect.ImmutableMap;
+import com.mojang.serialization.Codec;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.util.StringRepresentable;
+import net.neoforged.neoforge.network.codec.NeoForgeStreamCodecs;
 
 import java.util.Map;
 
@@ -9,6 +13,9 @@ public enum ToolSwapMode implements StringRepresentable {
 	ANY("name"),
 	ONLY_TOOLS("onlyTools"),
 	NO_SWAP("noSwap");
+
+	public static final Codec<ToolSwapMode> CODEC = StringRepresentable.fromEnum(ToolSwapMode::values);
+	public static final StreamCodec<FriendlyByteBuf, ToolSwapMode> STREAM_CODEC = NeoForgeStreamCodecs.enumCodec(ToolSwapMode.class);
 
 	private final String name;
 

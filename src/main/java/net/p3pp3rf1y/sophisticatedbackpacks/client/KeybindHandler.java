@@ -16,13 +16,13 @@ import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.IEventBus;
+import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent;
 import net.neoforged.neoforge.client.event.ScreenEvent;
 import net.neoforged.neoforge.client.settings.IKeyConflictContext;
 import net.neoforged.neoforge.client.settings.KeyConflictContext;
 import net.neoforged.neoforge.client.settings.KeyModifier;
 import net.neoforged.neoforge.common.NeoForge;
-import net.neoforged.neoforge.event.TickEvent;
 import net.neoforged.neoforge.network.PacketDistributor;
 import net.p3pp3rf1y.sophisticatedbackpacks.backpack.BackpackItem;
 import net.p3pp3rf1y.sophisticatedbackpacks.client.gui.BackpackScreen;
@@ -106,7 +106,7 @@ public class KeybindHandler {
 		}
 	}
 
-	public static void handleKeyInputEvent(TickEvent.ClientTickEvent event) {
+	public static void handleKeyInputEvent(ClientTickEvent.Post event) {
 		if (BACKPACK_OPEN_KEYBIND.consumeClick()) {
 			sendBackpackOpenOrCloseMessage();
 		} else if (INVENTORY_INTERACTION_KEYBIND.consumeClick()) {
@@ -116,7 +116,7 @@ public class KeybindHandler {
 		} else {
 			for (Map.Entry<Integer, KeyMapping> slotKeybind : UPGRADE_SLOT_TOGGLE_KEYBINDS.entrySet()) {
 				if (slotKeybind.getValue().consumeClick()) {
-					PacketDistributor.SERVER.noArg().send(new UpgradeTogglePacket(slotKeybind.getKey()));
+					PacketDistributor.sendToServer(new UpgradeTogglePayload(slotKeybind.getKey()));
 				}
 			}
 		}
@@ -151,10 +151,10 @@ public class KeybindHandler {
 		if (rayTrace.getType() == HitResult.Type.BLOCK) {
 			BlockHitResult blockRayTraceResult = (BlockHitResult) rayTrace;
 			BlockPos pos = blockRayTraceResult.getBlockPos();
-			PacketDistributor.SERVER.noArg().send(new BlockToolSwapPacket(pos));
+			PacketDistributor.sendToServer(new BlockToolSwapPayload(pos));
 		} else if (rayTrace.getType() == HitResult.Type.ENTITY) {
 			EntityHitResult entityRayTraceResult = (EntityHitResult) rayTrace;
-			PacketDistributor.SERVER.noArg().send(new EntityToolSwapPacket(entityRayTraceResult.getEntity().getId()));
+			PacketDistributor.sendToServer(new EntityToolSwapPayload(entityRayTraceResult.getEntity().getId()));
 		}
 	}
 
@@ -171,13 +171,13 @@ public class KeybindHandler {
 			return;
 		}
 
-		PacketDistributor.SERVER.noArg().send(new InventoryInteractionPacket(pos, blockraytraceresult.getDirection()));
+		PacketDistributor.sendToServer(new InventoryInteractionPayload(pos, blockraytraceresult.getDirection()));
 	}
 
 	@SuppressWarnings({"java:S2440"})
 	private static boolean sendBackpackOpenOrCloseMessage() {
 		if (!GUI.isActive()) {
-			PacketDistributor.SERVER.noArg().send(new BackpackOpenPacket());
+			PacketDistributor.sendToServer(new BackpackOpenPayload());
 			return false;
 		}
 
@@ -189,12 +189,12 @@ public class KeybindHandler {
 				Optional<String> handlerName = getPlayerInventoryHandlerName(slot.getSlotIndex());
 
 				if (handlerName.isPresent() && slot.getItem().getItem() instanceof BackpackItem) {
-					PacketDistributor.SERVER.noArg().send(new BackpackOpenPacket(slot.getSlotIndex(), "", handlerName.get()));
+					PacketDistributor.sendToServer(new BackpackOpenPayload(slot.getSlotIndex(), "", handlerName.get()));
 					return true;
 				}
 			}
 			if (screen instanceof BackpackScreen && slot != null && slot.getItem().getItem() instanceof BackpackItem && slot.getItem().getCount() == 1) {
-				PacketDistributor.SERVER.noArg().send(new BackpackOpenPacket(slot.index));
+				PacketDistributor.sendToServer(new BackpackOpenPayload(slot.index));
 				return true;
 			}
 		}

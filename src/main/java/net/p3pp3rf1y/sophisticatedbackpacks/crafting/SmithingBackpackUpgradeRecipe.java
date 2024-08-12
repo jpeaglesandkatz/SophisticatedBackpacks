@@ -1,9 +1,9 @@
 package net.p3pp3rf1y.sophisticatedbackpacks.crafting;
 
-import net.minecraft.core.RegistryAccess;
-import net.minecraft.world.Container;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeSerializer;
+import net.minecraft.world.item.crafting.SmithingRecipeInput;
 import net.minecraft.world.item.crafting.SmithingTransformRecipe;
 import net.neoforged.fml.util.thread.SidedThreadGroups;
 import net.p3pp3rf1y.sophisticatedbackpacks.backpack.BackpackItem;
@@ -29,18 +29,18 @@ public class SmithingBackpackUpgradeRecipe extends SmithingTransformRecipe imple
 	}
 
 	@Override
-	public ItemStack assemble(Container inv, RegistryAccess registryAccess) {
+	public ItemStack assemble(SmithingRecipeInput inv, HolderLookup.Provider registryAccess) {
 		ItemStack upgradedBackpack = result.copy();
 		if (Thread.currentThread().getThreadGroup() == SidedThreadGroups.SERVER) {
-			getBackpack(inv).flatMap(backpack -> Optional.ofNullable(backpack.getTag())).ifPresent(tag -> upgradedBackpack.setTag(tag.copy()));
-			IBackpackWrapper wrapper = BackpackWrapper.fromData(upgradedBackpack);
+			getBackpack(inv).map(ItemStack::getComponents).ifPresent(upgradedBackpack::applyComponents);
+			IBackpackWrapper wrapper = BackpackWrapper.fromStack(upgradedBackpack);
 			BackpackItem backpackItem = ((BackpackItem) upgradedBackpack.getItem());
 			wrapper.setSlotNumbers(backpackItem.getNumberOfSlots(), backpackItem.getNumberOfUpgradeSlots());
 		}
 		return upgradedBackpack;
 	}
 
-	private Optional<ItemStack> getBackpack(Container inv) {
+	private Optional<ItemStack> getBackpack(SmithingRecipeInput inv) {
 		ItemStack slotStack = inv.getItem(1);
 		if (slotStack.getItem() instanceof BackpackItem) {
 			return Optional.of(slotStack);

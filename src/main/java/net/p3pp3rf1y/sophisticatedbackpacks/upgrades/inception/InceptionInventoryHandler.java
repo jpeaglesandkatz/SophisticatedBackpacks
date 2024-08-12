@@ -151,7 +151,7 @@ public class InceptionInventoryHandler implements ITrackedContentsItemHandler {
 
 	private ITrackedContentsItemHandler getHandlerFromIndex(int index) {
 		if (index < 0 || index >= handlers.size()) {
-			return handlers.get(0);
+			return handlers.getFirst();
 		}
 		return handlers.get(index);
 	}

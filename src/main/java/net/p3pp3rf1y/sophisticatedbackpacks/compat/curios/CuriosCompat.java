@@ -2,13 +2,14 @@ package net.p3pp3rf1y.sophisticatedbackpacks.compat.curios;
 
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
+import net.neoforged.api.distmarker.Dist;
 import net.neoforged.fml.loading.FMLEnvironment;
+import net.neoforged.fml.loading.FMLLoader;
 import net.p3pp3rf1y.sophisticatedbackpacks.compat.CompatModIds;
 import net.p3pp3rf1y.sophisticatedbackpacks.init.ModItems;
 import net.p3pp3rf1y.sophisticatedbackpacks.util.PlayerInventoryProvider;
 import net.p3pp3rf1y.sophisticatedcore.compat.ICompat;
 import top.theillusivec4.curios.api.CuriosApi;
-import top.theillusivec4.curios.api.SlotTypePreset;
 import top.theillusivec4.curios.api.type.inventory.ICurioStacksHandler;
 
 import java.util.HashSet;
@@ -31,8 +32,8 @@ public class CuriosCompat implements ICompat {
 	private Set<String> getCurioTags(long gameTime) {
 		if (lastTagsRefresh + TAGS_REFRESH_COOLDOWN < gameTime) {
 			lastTagsRefresh = gameTime;
-			backpackCurioIdentifiers = new HashSet<>(CuriosApi.getItemStackSlots(ModItems.BACKPACK.get().getDefaultInstance()).keySet());
-			backpackCurioIdentifiers.add(SlotTypePreset.CURIO.getIdentifier());
+			backpackCurioIdentifiers = new HashSet<>( CuriosApi.getItemStackSlots(ModItems.BACKPACK.get().getDefaultInstance(), FMLLoader.getDist() == Dist.CLIENT).keySet());
+			backpackCurioIdentifiers.add("curio");
 		}
 		return backpackCurioIdentifiers;
 	}

@@ -1,6 +1,9 @@
 package net.p3pp3rf1y.sophisticatedbackpacks.data;
 
+import net.minecraft.core.HolderLookup;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.data.loot.LootTableSubProvider;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.storage.loot.BuiltInLootTables;
@@ -18,18 +21,26 @@ import java.util.function.BiConsumer;
 
 public class SBInjectLootSubProvider implements LootTableSubProvider {
 	private static final String INJECT_FOLDER = "inject/";
-	public static final ResourceLocation ABANDONED_MINESHAFT = ResourceLocation.fromNamespaceAndPath(SophisticatedBackpacks.MOD_ID, INJECT_FOLDER + BuiltInLootTables.ABANDONED_MINESHAFT.getPath());
-	public static final ResourceLocation BASTION_TREASURE = ResourceLocation.fromNamespaceAndPath(SophisticatedBackpacks.MOD_ID, INJECT_FOLDER + BuiltInLootTables.BASTION_TREASURE.getPath());
-	public static final ResourceLocation DESERT_PYRAMID = ResourceLocation.fromNamespaceAndPath(SophisticatedBackpacks.MOD_ID, INJECT_FOLDER + BuiltInLootTables.DESERT_PYRAMID.getPath());
-	public static final ResourceLocation END_CITY_TREASURE = ResourceLocation.fromNamespaceAndPath(SophisticatedBackpacks.MOD_ID, INJECT_FOLDER + BuiltInLootTables.END_CITY_TREASURE.getPath());
-	public static final ResourceLocation NETHER_BRIDGE = ResourceLocation.fromNamespaceAndPath(SophisticatedBackpacks.MOD_ID, INJECT_FOLDER + BuiltInLootTables.NETHER_BRIDGE.getPath());
-	public static final ResourceLocation SHIPWRECK_TREASURE = ResourceLocation.fromNamespaceAndPath(SophisticatedBackpacks.MOD_ID, INJECT_FOLDER + BuiltInLootTables.SHIPWRECK_TREASURE.getPath());
-	public static final ResourceLocation SIMPLE_DUNGEON = ResourceLocation.fromNamespaceAndPath(SophisticatedBackpacks.MOD_ID, INJECT_FOLDER + BuiltInLootTables.SIMPLE_DUNGEON.getPath());
-	public static final ResourceLocation WOODLAND_MANSION = ResourceLocation.fromNamespaceAndPath(SophisticatedBackpacks.MOD_ID, INJECT_FOLDER + BuiltInLootTables.WOODLAND_MANSION.getPath());
-	public static final Set<ResourceLocation> ALL_TABLES = Set.of(ABANDONED_MINESHAFT, BASTION_TREASURE, DESERT_PYRAMID, END_CITY_TREASURE, NETHER_BRIDGE, SHIPWRECK_TREASURE, SIMPLE_DUNGEON, WOODLAND_MANSION);
+	public static final ResourceKey<LootTable> ABANDONED_MINESHAFT = createInjectLootTableRegistryKey(BuiltInLootTables.ABANDONED_MINESHAFT);
+	public static final ResourceKey<LootTable> BASTION_TREASURE = createInjectLootTableRegistryKey(BuiltInLootTables.BASTION_TREASURE);
+	public static final ResourceKey<LootTable> DESERT_PYRAMID = createInjectLootTableRegistryKey(BuiltInLootTables.DESERT_PYRAMID);
+	public static final ResourceKey<LootTable> END_CITY_TREASURE = createInjectLootTableRegistryKey(BuiltInLootTables.END_CITY_TREASURE);
+	public static final ResourceKey<LootTable> NETHER_BRIDGE = createInjectLootTableRegistryKey(BuiltInLootTables.NETHER_BRIDGE);
+	public static final ResourceKey<LootTable> SHIPWRECK_TREASURE = createInjectLootTableRegistryKey(BuiltInLootTables.SHIPWRECK_TREASURE);
+	public static final ResourceKey<LootTable> SIMPLE_DUNGEON = createInjectLootTableRegistryKey(BuiltInLootTables.SIMPLE_DUNGEON);
+	public static final ResourceKey<LootTable> WOODLAND_MANSION = createInjectLootTableRegistryKey(BuiltInLootTables.WOODLAND_MANSION);
+	public static final Set<ResourceKey<LootTable>> ALL_TABLES = Set.of(ABANDONED_MINESHAFT, BASTION_TREASURE, DESERT_PYRAMID, END_CITY_TREASURE, NETHER_BRIDGE, SHIPWRECK_TREASURE, SIMPLE_DUNGEON, WOODLAND_MANSION);
+
+	private static ResourceKey<LootTable> createInjectLootTableRegistryKey(ResourceKey<LootTable> vanillaLootTable) {
+		ResourceLocation location = ResourceLocation.fromNamespaceAndPath(SophisticatedBackpacks.MOD_ID, INJECT_FOLDER + vanillaLootTable.location().getPath());
+		return ResourceKey.create(Registries.LOOT_TABLE, location);
+	}
+
+	public SBInjectLootSubProvider(HolderLookup.Provider registries) {
+	}
 
 	@Override
-	public void generate(BiConsumer<ResourceLocation, LootTable.Builder> tables) {
+	public void generate(BiConsumer<ResourceKey<LootTable>, LootTable.Builder> tables) {
 		tables.accept(SIMPLE_DUNGEON, getLootTable(90,
 				getItemLootEntry(ModItems.BACKPACK.get(), 5),
 				getItemLootEntry(ModItems.COPPER_BACKPACK.get(), 3),

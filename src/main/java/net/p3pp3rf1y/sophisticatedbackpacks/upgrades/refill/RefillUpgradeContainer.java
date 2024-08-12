@@ -8,7 +8,6 @@ import net.p3pp3rf1y.sophisticatedcore.upgrades.FilterLogic;
 import net.p3pp3rf1y.sophisticatedcore.upgrades.FilterLogicContainer;
 import net.p3pp3rf1y.sophisticatedcore.util.NBTHelper;
 
-import java.util.Map;
 import java.util.Optional;
 
 public class RefillUpgradeContainer extends UpgradeContainerBase<RefillUpgradeWrapper, RefillUpgradeContainer> {

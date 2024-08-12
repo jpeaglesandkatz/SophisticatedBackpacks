@@ -1,5 +1,6 @@
 package net.p3pp3rf1y.sophisticatedbackpacks.data;
 
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.loot.BlockLootSubProvider;
 import net.minecraft.world.flag.FeatureFlags;
@@ -18,8 +19,8 @@ import java.util.Map;
 import java.util.Set;
 
 public class SBPBlockLootSubProvider extends BlockLootSubProvider {
-	protected SBPBlockLootSubProvider() {
-		super(Set.of(), FeatureFlags.REGISTRY.allFlags());
+	protected SBPBlockLootSubProvider(HolderLookup.Provider registries) {
+		super(Set.of(), FeatureFlags.REGISTRY.allFlags(), registries);
 	}
 
 	@Override
