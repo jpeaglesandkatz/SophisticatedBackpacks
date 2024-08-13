@@ -4,7 +4,6 @@ import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.minecraft.world.SimpleMenuProvider;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.InventoryMenu;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
@@ -13,6 +12,7 @@ import net.p3pp3rf1y.sophisticatedbackpacks.common.gui.BackpackContainer;
 import net.p3pp3rf1y.sophisticatedbackpacks.common.gui.BackpackContext;
 import net.p3pp3rf1y.sophisticatedbackpacks.common.gui.IContextAwareContainer;
 import net.p3pp3rf1y.sophisticatedbackpacks.util.PlayerInventoryProvider;
+import net.p3pp3rf1y.sophisticatedcore.common.gui.SophisticatedMenuProvider;
 
 public record BackpackOpenPayload(int slotIndex, String identifier, String handlerName) implements CustomPacketPayload {
 	public static final Type<BackpackOpenPayload> TYPE = new Type<>(SophisticatedBackpacks.getRL("backpack_open"));
@@ -76,12 +76,12 @@ public record BackpackOpenPayload(int slotIndex, String identifier, String handl
 	private static void findAndOpenFirstBackpack(Player player) {
 		PlayerInventoryProvider.get().runOnBackpacks(player, (backpack, inventoryName, identifier, slot) -> {
 			BackpackContext.Item backpackContext = new BackpackContext.Item(inventoryName, identifier, slot);
-			player.openMenu(new SimpleMenuProvider((w, p, pl) -> new BackpackContainer(w, pl, backpackContext), backpack.getHoverName()), backpackContext::toBuffer);
+			player.openMenu(new SophisticatedMenuProvider((w, p, pl) -> new BackpackContainer(w, pl, backpackContext), backpack.getHoverName(), false), backpackContext::toBuffer);
 			return true;
 		});
 	}
 
 	private static void openBackpack(Player player, BackpackContext backpackContext) {
-		player.openMenu(new SimpleMenuProvider((w, p, pl) -> new BackpackContainer(w, pl, backpackContext), backpackContext.getDisplayName(player)), backpackContext::toBuffer);
+		player.openMenu(new SophisticatedMenuProvider((w, p, pl) -> new BackpackContainer(w, pl, backpackContext), backpackContext.getDisplayName(player), false), backpackContext::toBuffer);
 	}
 }
