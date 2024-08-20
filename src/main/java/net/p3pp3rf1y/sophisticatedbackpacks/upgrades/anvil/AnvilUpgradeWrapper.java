@@ -27,6 +27,11 @@ public class AnvilUpgradeWrapper extends UpgradeWrapperBase<AnvilUpgradeWrapper,
 			public int getSlotLimit(int slot) {
 				return 64;
 			}
+
+			@Override
+			public boolean isItemValid(int slot, ItemStack stack) {
+				return true;
+			}
 		};
 	}
 
