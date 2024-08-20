@@ -386,9 +386,8 @@ public class BackpackItem extends ItemBase implements IStashStorageItem {
 		return Optional.of(new BackpackItem.BackpackContentsTooltip(stack));
 	}
 
-	@Override
-	public ItemStack stash(ItemStack storageStack, ItemStack stack) {
-		return storageStack.getCapability(CapabilityBackpackWrapper.getCapabilityInstance()).map(wrapper -> wrapper.getInventoryForUpgradeProcessing().insertItem(stack, false)).orElse(stack);
+	public ItemStack stash(ItemStack storageStack, ItemStack stack, boolean simulate) {
+		return storageStack.getCapability(CapabilityBackpackWrapper.getCapabilityInstance()).map(wrapper -> wrapper.getInventoryForUpgradeProcessing().insertItem(stack, simulate)).orElse(stack);
 	}
 
 	@Override
@@ -418,10 +417,11 @@ public class BackpackItem extends ItemBase implements IStashStorageItem {
 		}
 
 		ItemStack stackToStash = slot.getItem();
-		ItemStack stashResult = stash(storageStack, stackToStash);
-		if (stashResult.getCount() != stackToStash.getCount()) {
-			slot.set(stashResult);
-			slot.onTake(player, stashResult);
+		ItemStack stashResult = stash(storageStack, stackToStash, true);
+		if (stashResult.getCount() < stackToStash.getCount()) {
+			int countToTake = stackToStash.getCount() - stashResult.getCount();
+			ItemStack takeResult = slot.safeTake(countToTake, countToTake, player);
+			stash(storageStack, takeResult, false);
 			return true;
 		}
 
@@ -434,7 +434,7 @@ public class BackpackItem extends ItemBase implements IStashStorageItem {
 			return super.overrideOtherStackedOnMe(storageStack, otherStack, slot, action, player, carriedAccess);
 		}
 
-		ItemStack result = stash(storageStack, otherStack);
+		ItemStack result = stash(storageStack, otherStack, false);
 		if (result.getCount() != otherStack.getCount()) {
 			carriedAccess.set(result);
 			slot.set(storageStack);
