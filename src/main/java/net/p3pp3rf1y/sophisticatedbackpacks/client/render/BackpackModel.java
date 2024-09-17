@@ -162,15 +162,15 @@ public class BackpackModel extends AgeableListModel<LivingEntity> implements IBa
 		MeshDefinition meshdefinition = new MeshDefinition();
 		PartDefinition partDefinition = meshdefinition.getRoot();
 		partDefinition.addOrReplaceChild(LEFT_TANK_GLASS_PART, CubeListBuilder.create()
-						.texOffs(18, 5).addBox(-15F, 3.5F, -2.5F, 4.0F, 10.0F, 0.0F)
-						.texOffs(0, 0).addBox(-15F, 3.5F, -2.5F, 0.0F, 10.0F, 5.0F)
-						.texOffs(10, 5).addBox(-15F, 3.5F, 2.5F, 4.0F, 10.0F, 0.0F)
+						.texOffs(18, 5).addBox(-15F, 3.5F, -2.5F, 4.0F, 10.0F, 0.01F)
+						.texOffs(0, 0).addBox(-15F, 3.5F, -2.5F, 0.01F, 10.0F, 5.0F)
+						.texOffs(10, 5).addBox(-15F, 3.5F, 2.5F, 4.0F, 10.0F, 0.01F)
 				, PartPose.offset(0.0F, 24.0F, 0.0F)
 		);
 		partDefinition.addOrReplaceChild(RIGHT_TANK_GLASS_PART, CubeListBuilder.create()
-						.texOffs(18, 5).addBox(11F, 3.5F, -2.5F, 4.0F, 10.0F, 0.0F, true)
-						.texOffs(0, 0).addBox(15F, 3.5F, -2.5F, 0.0F, 10.0F, 5.0F, true)
-						.texOffs(10, 5).addBox(11F, 3.5F, 2.5F, 4.0F, 10.0F, 0.0F, true)
+						.texOffs(18, 5).addBox(11F, 3.5F, -2.5F, 4.0F, 10.0F, 0.01F, true)
+						.texOffs(0, 0).addBox(15F, 3.5F, -2.5F, 0.01F, 10.0F, 5.0F, true)
+						.texOffs(10, 5).addBox(11F, 3.5F, 2.5F, 4.0F, 10.0F, 0.01F, true)
 				, PartPose.offset(0.0F, 24.0F, 0.0F)
 		);
 		return partDefinition.bake(32, 32);
