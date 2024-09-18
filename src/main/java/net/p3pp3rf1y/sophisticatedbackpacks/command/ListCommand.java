@@ -4,11 +4,7 @@ import com.mojang.brigadier.builder.ArgumentBuilder;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
-import net.minecraft.network.chat.ClickEvent;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.HoverEvent;
-import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.TextColor;
+import net.minecraft.network.chat.*;
 import net.p3pp3rf1y.sophisticatedbackpacks.backpack.AccessLogRecord;
 import net.p3pp3rf1y.sophisticatedbackpacks.backpack.BackpackAccessLogger;
 
@@ -39,7 +35,7 @@ public class ListCommand {
 			message.append(Component.literal(alr.getBackpackName())
 					.withStyle(s ->
 							s.withColor(ChatFormatting.GREEN).withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/sophisticatedbackpacks give @p " + alr.getBackpackUuid()))
-									.withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Component.translatable("chat.sophisticatedbackpacks.backpack_uuid.tooltip", alr.getBackpackUuid())))
+									.withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Component.translatable("chat.sophisticatedbackpacks.backpack_uuid.tooltip", alr.getBackpackUuid().toString())))
 					)
 			);
 			message.append(Component.literal(", "));
