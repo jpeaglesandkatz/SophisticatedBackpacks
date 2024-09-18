@@ -90,7 +90,7 @@
     "item.sophisticatedbackpacks.advanced_tool_swapper_upgrade": "Zaawansowane Ulepszenie Zamiany Narzędzi",
     "item.sophisticatedbackpacks.advanced_tool_swapper_upgrade.tooltip": "Automatycznie zamienia przedmiot w ręku gracza na ten, który jest skuteczny na bloku/przedmiocie, gdy te zostaną kliknięte lewym przyciskiem myszy. Posiada opcje filtrów i umożliwia zamianę narzędzi na blok/przedmiot, na który patrzy gracz z %s",
     "keybind.sophisticatedbackpacks.category": "Sophisticated Backpacks",
-    "keybind.sophisticatedbackpacks.open_backpack": "Otwórz plecam",
+    "keybind.sophisticatedbackpacks.open_backpack": "Otwórz plecak",
     "keybind.sophisticatedbackpacks.inventory_interaction": "Użyj Ulepszeń Inwentarza",
     "keybind.sophisticatedbackpacks.tool_swap": "Zamień narzędzie na podstawie bieżącego bloku/przedmiotu",
     "keybind.sophisticatedbackpacks.sort": "Posortuj Plecak",
