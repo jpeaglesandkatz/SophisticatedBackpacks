@@ -249,13 +249,15 @@ public class ToolSwapperUpgradeWrapper extends UpgradeWrapperBase<ToolSwapperUpg
 			return true;
 		}
 
-		InventoryHelper.extractFromInventory(sword, backpackInventory, false);
+		ItemStack swordCopy = sword.copy();
+		swordCopy.setCount(1);
+		InventoryHelper.extractFromInventory(swordCopy, backpackInventory, false);
 		if (backpackInventory.insertItem(mainHandItem, true).isEmpty()) {
-			player.setItemInHand(InteractionHand.MAIN_HAND, sword);
+			player.setItemInHand(InteractionHand.MAIN_HAND, swordCopy);
 			backpackInventory.insertItem(mainHandItem, false);
 			return true;
 		} else {
-			backpackInventory.insertItem(sword, false);
+			backpackInventory.insertItem(swordCopy, false);
 			return false;
 		}
 	}
