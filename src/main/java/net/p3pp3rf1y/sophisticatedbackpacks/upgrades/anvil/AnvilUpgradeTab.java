@@ -3,11 +3,9 @@ package net.p3pp3rf1y.sophisticatedbackpacks.upgrades.anvil;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.world.inventory.Slot;
-import net.minecraft.world.item.ItemStack;
 import net.p3pp3rf1y.sophisticatedbackpacks.client.gui.SBPTranslationHelper;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.StorageScreenBase;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.UpgradeSettingsTab;
@@ -25,7 +23,6 @@ public class AnvilUpgradeTab extends UpgradeSettingsTab<AnvilUpgradeContainer> {
 	public static final TextureBlitData RED_CROSS = new TextureBlitData(GuiHelper.GUI_CONTROLS, Dimension.SQUARE_256, new UV(113, 216), new Dimension(15, 15));
 	private static final Component TOO_EXPENSIVE_TEXT = Component.translatable("container.repair.expensive");
 	private final TextBox itemNameTextBox;
-	private ItemStack firstItemCache = ItemStack.EMPTY;
 
 	public AnvilUpgradeTab(AnvilUpgradeContainer upgradeContainer, Position position, StorageScreenBase<?> screen) {
 		super(upgradeContainer, position, screen, SBPTranslationHelper.INSTANCE.translUpgrade("anvil"), SBPTranslationHelper.INSTANCE.translUpgradeTooltip("anvil"));
@@ -46,44 +43,27 @@ public class AnvilUpgradeTab extends UpgradeSettingsTab<AnvilUpgradeContainer> {
 				TextureBlitData textureBlitData = getContainer().getSlots().get(0).hasItem() ? EDIT_ITEM_NAME_BACKGROUND : EDIT_ITEM_NAME_BACKGROUND_DISABLED;
 
 				GuiHelper.blit(guiGraphics, getX() - 4, getY() - ((getHeight() - 8) / 2) - 1, textureBlitData, getWidth() + 12, getHeight() + 2);
-
 			}
 		};
+
 		itemNameTextBox.setTextColor(-1);
 		itemNameTextBox.setTextColorUneditable(-1);
 		itemNameTextBox.setBordered(false);
 		itemNameTextBox.setMaxLength(50);
 		itemNameTextBox.setResponder(this::onNameChanged);
-		itemNameTextBox.setValue(getInitialNameValue());
+		itemNameTextBox.setValue(getContainer().getItemName());
 		addHideableChild(itemNameTextBox);
 		itemNameTextBox.setEditable(!upgradeContainer.getSlots().get(0).getItem().isEmpty());
 
-		getContainer().setSlotsChangeListener(() -> {
-			ItemStack firstItem = getContainer().getSlots().get(0).getItem();
-			if (!ItemStack.matches(firstItem, firstItemCache) || itemNameTextBox.getValue().isEmpty() != firstItem.isEmpty()) {
-				firstItemCache = firstItem;
-				itemNameTextBox.setValue(firstItem.isEmpty() ? "" : firstItem.getHoverName().getString());
-				itemNameTextBox.setEditable(!firstItem.isEmpty());
-			}
+		getContainer().setNameChangeListener(() -> {
+			itemNameTextBox.setValue(getContainer().getItemName());
+			itemNameTextBox.setEditable(!getContainer().getSlots().get(0).getItem().isEmpty());
 		});
-	}
-
-	private String getInitialNameValue() {
-		ItemStack firstItem = getContainer().getSlots().get(0).getItem();
-		String itemName = getContainer().getItemName();
-		if (!firstItem.isEmpty() && itemName != null && !itemName.isEmpty()) {
-			return itemName;
-		}
-		return firstItem.isEmpty() ? "" : firstItem.getHoverName().getString();
 	}
 
 	private void onNameChanged(String name) {
 		if (getContainer().isProcessingOnTakeLogic()) {
 			return;
-		}
-		ItemStack firstItem = getContainer().getSlots().get(0).getItem();
-		if (!firstItem.has(DataComponents.CUSTOM_NAME) && name.equals(firstItem.getHoverName().getString())) {
-			name = "";
 		}
 		getContainer().setItemName(name);
 	}
