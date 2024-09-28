@@ -155,7 +155,12 @@ public abstract class BackpackContext {
 				SophisticatedBackpacks.LOGGER.error("Error getting backpack wrapper - Unable to find inventory handler for \"{}\"", handlerName);
 				return IBackpackWrapper.Noop.INSTANCE;
 			}
-			return BackpackWrapper.fromStack(inventoryHandler.get().getStackInSlot(player, identifier, backpackSlotIndex));
+			ItemStack backpackStack = inventoryHandler.get().getStackInSlot(player, identifier, backpackSlotIndex);
+			if (backpackStack.getItem() instanceof BackpackItem) {
+				return BackpackWrapper.fromStack(backpackStack);
+			}
+			SophisticatedBackpacks.LOGGER.error("Error getting backpack wrapper - Stack isn't a backpack");
+			return IBackpackWrapper.Noop.INSTANCE;
 		}
 
 		@Override
