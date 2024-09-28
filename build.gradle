@@ -153,7 +153,7 @@ var generateModMetadata = tasks.register("generateModMetadata", ProcessResources
             mod_issue_tracker_url: mod_issue_tracker_url, mod_logo_file: mod_logo_file, mod_credits: mod_credits,
             mod_authors         : mod_authors, mod_description: mod_description, mod_display_url: mod_display_url,
             mod_full_version    : "${project.mod_version}.${getBuildNumber()}${getStable()}",
-            sc_version          :"[" + sc_version.substring(sc_version.indexOf("-") + 1, sc_version.lastIndexOf(',')) + ".+,)"
+            sc_version          :"[" + sc_version.substring(sc_version.indexOf("-") + 1, sc_version.lastIndexOf(',')) + ",)"
     ]
     inputs.properties replaceProperties
 
