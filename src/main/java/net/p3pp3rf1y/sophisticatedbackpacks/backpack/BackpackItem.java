@@ -336,8 +336,14 @@ public class BackpackItem extends ItemBase implements IStashStorageItem {
 		ItemStack stashResult = stash(storageStack, stackToStash, true);
 		if (stashResult.getCount() < stackToStash.getCount()) {
 			int countToTake = stackToStash.getCount() - stashResult.getCount();
-			ItemStack takeResult = slot.safeTake(countToTake, countToTake, player);
-			stash(storageStack, takeResult, false);
+			while (countToTake > 0) {
+				ItemStack takeResult = slot.safeTake(countToTake, countToTake, player);
+				if (takeResult.isEmpty()) {
+					break;
+				}
+				stash(storageStack, takeResult, false);
+				countToTake -= takeResult.getCount();
+			}
 			return true;
 		}
 
