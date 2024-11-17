@@ -42,7 +42,6 @@ import net.p3pp3rf1y.sophisticatedbackpacks.settings.BackpackMainSettingsCategor
 import net.p3pp3rf1y.sophisticatedbackpacks.util.PlayerInventoryProvider;
 import net.p3pp3rf1y.sophisticatedcore.network.SyncPlayerSettingsPayload;
 import net.p3pp3rf1y.sophisticatedcore.settings.SettingsManager;
-import net.p3pp3rf1y.sophisticatedcore.upgrades.jukebox.ServerStorageSoundHandler;
 import net.p3pp3rf1y.sophisticatedcore.util.InventoryHelper;
 
 import java.util.*;
@@ -60,7 +59,6 @@ public class CommonEventHandler {
 		eventBus.addListener(this::onLivingDrops);
 		eventBus.addListener(this::onEntityMobGriefing);
 		eventBus.addListener(this::onEntityLeaveWorld);
-		eventBus.addListener(ServerStorageSoundHandler::tick);
 		eventBus.addListener(this::onBlockClick);
 		eventBus.addListener(this::onAttackEntity);
 		eventBus.addListener(EntityBackpackAdditionHandler::onLivingUpdate);
