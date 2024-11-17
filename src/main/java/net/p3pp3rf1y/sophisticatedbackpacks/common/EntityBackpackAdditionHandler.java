@@ -6,7 +6,6 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.tags.EnchantmentTags;
-import net.minecraft.tags.ItemTags;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
@@ -31,6 +30,7 @@ import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
+import net.neoforged.neoforge.common.Tags;
 import net.neoforged.neoforge.common.util.FakePlayer;
 import net.neoforged.neoforge.event.entity.living.LivingDropsEvent;
 import net.neoforged.neoforge.event.tick.EntityTickEvent;
@@ -45,10 +45,7 @@ import net.p3pp3rf1y.sophisticatedcore.upgrades.jukebox.JukeboxUpgradeItem;
 import net.p3pp3rf1y.sophisticatedcore.util.RandHelper;
 import net.p3pp3rf1y.sophisticatedcore.util.WeightedElement;
 
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 public class EntityBackpackAdditionHandler {
 	private static final int MAX_DIFFICULTY = 3;
@@ -175,8 +172,27 @@ public class EntityBackpackAdditionHandler {
 		Iterator<JukeboxUpgradeItem.Wrapper> it = w.getUpgradeHandler().getTypeWrappers(JukeboxUpgradeItem.TYPE).iterator();
 		if (it.hasNext()) {
 			JukeboxUpgradeItem.Wrapper wrapper = it.next();
-			BuiltInRegistries.ITEM.getRandomElementOf(ItemTags.CREEPER_DROP_MUSIC_DISCS, rnd).ifPresent(disc -> wrapper.setDisc(new ItemStack(disc)));
+			wrapper.setDisc(new ItemStack(getMusicDiscs().get(rnd.nextInt(getMusicDiscs().size()))));
 		}
+	}
+
+	private static List<Item> musicDiscs = null;
+
+	private static List<Item> getMusicDiscs() {
+		if (musicDiscs == null) {
+			BuiltInRegistries.ITEM.getTag(Tags.Items.MUSIC_DISCS).ifPresentOrElse(records -> {
+				Set<String> blockedDiscs = new HashSet<>(Config.SERVER.entityBackpackAdditions.discBlockList.get());
+				musicDiscs = new ArrayList<>();
+				records.forEach(musicDisc -> {
+					//noinspection ConstantConditions - by this point the disc has registry name
+					if (!blockedDiscs.contains(musicDisc.getKey().location().toString())) {
+						musicDiscs.add(musicDisc.value());
+					}
+				});
+			}, () -> musicDiscs = Collections.emptyList());
+		}
+
+		return musicDiscs;
 	}
 
 	private static void raiseHealth(Monster monster, int minDifficulty) {
