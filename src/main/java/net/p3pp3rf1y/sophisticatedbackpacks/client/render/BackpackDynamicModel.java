@@ -211,7 +211,7 @@ public class BackpackDynamicModel implements IUnbakedGeometry<BackpackDynamicMod
 		}
 
 		private void addFluid(List<BakedQuad> ret, FluidStack fluidStack, float ratio, double xMin) {
-			if (Mth.equal(ratio, 0.0f)) {
+			if (fluidStack == FluidStack.EMPTY || Mth.equal(ratio, 0.0f)) {
 				return;
 			}
 
