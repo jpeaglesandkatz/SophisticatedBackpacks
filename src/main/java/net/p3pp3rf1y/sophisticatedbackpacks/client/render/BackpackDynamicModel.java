@@ -8,17 +8,9 @@ import com.mojang.datafixers.util.Either;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.block.model.BakedQuad;
-import net.minecraft.client.renderer.block.model.BlockModel;
-import net.minecraft.client.renderer.block.model.ItemOverrides;
-import net.minecraft.client.renderer.block.model.ItemTransform;
-import net.minecraft.client.renderer.block.model.ItemTransforms;
+import net.minecraft.client.renderer.block.model.*;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.client.resources.model.BakedModel;
-import net.minecraft.client.resources.model.Material;
-import net.minecraft.client.resources.model.ModelBaker;
-import net.minecraft.client.resources.model.ModelState;
-import net.minecraft.client.resources.model.UnbakedModel;
+import net.minecraft.client.resources.model.*;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
 import net.minecraft.resources.ResourceLocation;
@@ -52,11 +44,7 @@ import org.joml.Vector4f;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
 
 import static net.p3pp3rf1y.sophisticatedbackpacks.backpack.BackpackBlock.*;
@@ -95,7 +83,8 @@ public class BackpackDynamicModel implements IUnbakedGeometry<BackpackDynamicMod
 		private static final ItemTransforms ITEM_TRANSFORMS = createItemTransforms();
 		private static final ResourceLocation BACKPACK_MODULES_TEXTURE = new ResourceLocation("sophisticatedbackpacks:block/backpack_modules");
 
-		@SuppressWarnings("java:S4738") //ItemTransforms require Guava ImmutableMap to be passed in so no way to change that to java Map
+		@SuppressWarnings("java:S4738")
+		//ItemTransforms require Guava ImmutableMap to be passed in so no way to change that to java Map
 		private static ItemTransforms createItemTransforms() {
 			return new ItemTransforms(new ItemTransform(
 					new Vector3f(85, -90, 0),
@@ -154,7 +143,7 @@ public class BackpackDynamicModel implements IUnbakedGeometry<BackpackDynamicMod
 		@Nonnull
 		@Override
 		public List<BakedQuad> getQuads(@Nullable BlockState state, @Nullable Direction side, RandomSource rand, ModelData extraData,
-				@Nullable RenderType renderType) {
+										@Nullable RenderType renderType) {
 			List<BakedQuad> ret = new ArrayList<>(models.get(ModelPart.BASE).getQuads(state, side, rand, extraData, renderType));
 			if (state == null) {
 				addLeftSide(state, side, rand, extraData, ret, tankLeft, renderType);
@@ -170,7 +159,7 @@ public class BackpackDynamicModel implements IUnbakedGeometry<BackpackDynamicMod
 		}
 
 		private void addFront(@Nullable BlockState state, @Nullable Direction side, RandomSource rand, ModelData extraData, List<BakedQuad> ret,
-				boolean battery, @Nullable RenderType renderType) {
+							  boolean battery, @Nullable RenderType renderType) {
 			if (battery) {
 				if (batteryRenderInfo != null) {
 					addCharge(ret, batteryRenderInfo.getChargeRatio());
@@ -191,13 +180,12 @@ public class BackpackDynamicModel implements IUnbakedGeometry<BackpackDynamicMod
 			float minZ = 1.95f / 16f;
 			float maxX = minX + pixels / 16f;
 			float maxY = minY + 1 / 16f;
-			float[] cols = new float[] {1f, 1f, 1f, 1f};
 			TextureAtlasSprite sprite = Minecraft.getInstance().getTextureAtlas(InventoryMenu.BLOCK_ATLAS).apply(BACKPACK_MODULES_TEXTURE);
-			ret.add(createQuad(List.of(getVector(maxX, maxY, minZ), getVector(maxX, minY, minZ), getVector(minX, minY, minZ), getVector(minX, maxY, minZ)), cols, sprite, Direction.NORTH, 14, 14 + (pixels / 2f), 6, 6.5f));
+			ret.add(createQuad(List.of(getVector(maxX, maxY, minZ), getVector(maxX, minY, minZ), getVector(minX, minY, minZ), getVector(minX, maxY, minZ)), 0xFFFFFFFF, sprite, Direction.NORTH, 14, 14 + (pixels / 2f), 6, 6.5f));
 		}
 
 		private void addRightSide(@Nullable BlockState state, @Nullable Direction side, RandomSource rand, ModelData extraData, List<BakedQuad> ret,
-				boolean tankRight, @Nullable RenderType renderType) {
+								  boolean tankRight, @Nullable RenderType renderType) {
 			if (tankRight) {
 				if (rightTankRenderInfo != null) {
 					rightTankRenderInfo.getFluid().ifPresent(fluid -> addFluid(ret, fluid, rightTankRenderInfo.getFillRatio(), 0.6 / 16d));
@@ -209,7 +197,7 @@ public class BackpackDynamicModel implements IUnbakedGeometry<BackpackDynamicMod
 		}
 
 		private void addLeftSide(@Nullable BlockState state, @Nullable Direction side, RandomSource rand, ModelData extraData, List<BakedQuad> ret,
-				boolean tankLeft, @Nullable RenderType renderType) {
+								 boolean tankLeft, @Nullable RenderType renderType) {
 			if (tankLeft) {
 				if (leftTankRenderInfo != null) {
 					leftTankRenderInfo.getFluid().ifPresent(fluid -> addFluid(ret, fluid, leftTankRenderInfo.getFillRatio(), 12.85 / 16d));
@@ -221,7 +209,7 @@ public class BackpackDynamicModel implements IUnbakedGeometry<BackpackDynamicMod
 		}
 
 		private void addFluid(List<BakedQuad> ret, FluidStack fluidStack, float ratio, double xMin) {
-			if (Mth.equal(ratio, 0.0f)) {
+			if (fluidStack.isEmpty() || Mth.equal(ratio, 0.0f)) {
 				return;
 			}
 
@@ -231,8 +219,7 @@ public class BackpackDynamicModel implements IUnbakedGeometry<BackpackDynamicMod
 
 			IClientFluidTypeExtensions renderProperties = IClientFluidTypeExtensions.of(fluidStack.getFluid());
 			ResourceLocation texture = renderProperties.getStillTexture(fluidStack);
-			int color = renderProperties.getTintColor(fluidStack);
-			float[] cols = new float[] {(color >> 24 & 0xFF) / 255F, (color >> 16 & 0xFF) / 255F, (color >> 8 & 0xFF) / 255F, (color & 0xFF) / 255F};
+			int color = renderProperties.getTintColor(fluidStack) | -16777216;
 			TextureAtlasSprite still = Minecraft.getInstance().getTextureAtlas(InventoryMenu.BLOCK_ATLAS).apply(texture);
 			float bx1 = 0;
 			float bx2 = 5;
@@ -241,11 +228,11 @@ public class BackpackDynamicModel implements IUnbakedGeometry<BackpackDynamicMod
 			float bz1 = 0;
 			float bz2 = 5;
 
-			ret.add(createQuad(List.of(getVector(bounds.minX, bounds.maxY, bounds.minZ), getVector(bounds.minX, bounds.maxY, bounds.maxZ), getVector(bounds.maxX, bounds.maxY, bounds.maxZ), getVector(bounds.maxX, bounds.maxY, bounds.minZ)), cols, still, Direction.UP, bx1, bx2, bz1, bz2));
-			ret.add(createQuad(List.of(getVector(bounds.maxX, bounds.maxY, bounds.minZ), getVector(bounds.maxX, bounds.minY, bounds.minZ), getVector(bounds.minX, bounds.minY, bounds.minZ), getVector(bounds.minX, bounds.maxY, bounds.minZ)), cols, still, Direction.NORTH, bx1, bx2, by1, by2));
-			ret.add(createQuad(List.of(getVector(bounds.minX, bounds.maxY, bounds.maxZ), getVector(bounds.minX, bounds.minY, bounds.maxZ), getVector(bounds.maxX, bounds.minY, bounds.maxZ), getVector(bounds.maxX, bounds.maxY, bounds.maxZ)), cols, still, Direction.SOUTH, bx1, bx2, by1, by2));
-			ret.add(createQuad(List.of(getVector(bounds.minX, bounds.maxY, bounds.minZ), getVector(bounds.minX, bounds.minY, bounds.minZ), getVector(bounds.minX, bounds.minY, bounds.maxZ), getVector(bounds.minX, bounds.maxY, bounds.maxZ)), cols, still, Direction.WEST, bz1, bz2, by1, by2));
-			ret.add(createQuad(List.of(getVector(bounds.maxX, bounds.maxY, bounds.maxZ), getVector(bounds.maxX, bounds.minY, bounds.maxZ), getVector(bounds.maxX, bounds.minY, bounds.minZ), getVector(bounds.maxX, bounds.maxY, bounds.minZ)), cols, still, Direction.EAST, bz1, bz2, by1, by2));
+			ret.add(createQuad(List.of(getVector(bounds.minX, bounds.maxY, bounds.minZ), getVector(bounds.minX, bounds.maxY, bounds.maxZ), getVector(bounds.maxX, bounds.maxY, bounds.maxZ), getVector(bounds.maxX, bounds.maxY, bounds.minZ)), color, still, Direction.UP, bx1, bx2, bz1, bz2));
+			ret.add(createQuad(List.of(getVector(bounds.maxX, bounds.maxY, bounds.minZ), getVector(bounds.maxX, bounds.minY, bounds.minZ), getVector(bounds.minX, bounds.minY, bounds.minZ), getVector(bounds.minX, bounds.maxY, bounds.minZ)), color, still, Direction.NORTH, bx1, bx2, by1, by2));
+			ret.add(createQuad(List.of(getVector(bounds.minX, bounds.maxY, bounds.maxZ), getVector(bounds.minX, bounds.minY, bounds.maxZ), getVector(bounds.maxX, bounds.minY, bounds.maxZ), getVector(bounds.maxX, bounds.maxY, bounds.maxZ)), color, still, Direction.SOUTH, bx1, bx2, by1, by2));
+			ret.add(createQuad(List.of(getVector(bounds.minX, bounds.maxY, bounds.minZ), getVector(bounds.minX, bounds.minY, bounds.minZ), getVector(bounds.minX, bounds.minY, bounds.maxZ), getVector(bounds.minX, bounds.maxY, bounds.maxZ)), color, still, Direction.WEST, bz1, bz2, by1, by2));
+			ret.add(createQuad(List.of(getVector(bounds.maxX, bounds.maxY, bounds.maxZ), getVector(bounds.maxX, bounds.minY, bounds.maxZ), getVector(bounds.maxX, bounds.minY, bounds.minZ), getVector(bounds.maxX, bounds.maxY, bounds.minZ)), color, still, Direction.EAST, bz1, bz2, by1, by2));
 		}
 
 		private Vector3f getVector(double x, double y, double z) {
@@ -274,7 +261,8 @@ public class BackpackDynamicModel implements IUnbakedGeometry<BackpackDynamicMod
 			return true;
 		}
 
-		@SuppressWarnings("java:S1874") //don't have model data to pass in here and just calling getParticleTexture of baked model that doesn't need model data
+		@SuppressWarnings("java:S1874")
+		//don't have model data to pass in here and just calling getParticleTexture of baked model that doesn't need model data
 		@Override
 		public TextureAtlasSprite getParticleIcon() {
 			//noinspection deprecation
@@ -303,7 +291,7 @@ public class BackpackDynamicModel implements IUnbakedGeometry<BackpackDynamicMod
 			return ITEM_TRANSFORMS;
 		}
 
-		private BakedQuad createQuad(List<Vector3f> vecs, float[] colors, TextureAtlasSprite sprite, Direction face, float u1, float u2, float v1, float v2) {
+		private BakedQuad createQuad(List<Vector3f> vecs, int color, TextureAtlasSprite sprite, Direction face, float u1, float u2, float v1, float v2) {
 			var bakedQuad = new BakedQuad[1];
 			QuadBakingVertexConsumer quadBaker = new QuadBakingVertexConsumer(q -> bakedQuad[0] = q);
 			quadBaker.setSprite(sprite);
@@ -317,10 +305,10 @@ public class BackpackDynamicModel implements IUnbakedGeometry<BackpackDynamicMod
 			v1 = sprite.getV0() + v1 / 4f * sprite.uvShrinkRatio();
 			v2 = sprite.getV0() + v2 / 4f * sprite.uvShrinkRatio();
 
-			quadBaker.vertex(vecs.get(0).x(), vecs.get(0).y(), vecs.get(0).z()).color(colors[1], colors[2], colors[3], colors[0]).uv(u1, v1).normal(dirVec.getX(), dirVec.getY(), dirVec.getZ()).endVertex();
-			quadBaker.vertex(vecs.get(1).x(), vecs.get(1).y(), vecs.get(1).z()).color(colors[1], colors[2], colors[3], colors[0]).uv(u1, v2).normal(dirVec.getX(), dirVec.getY(), dirVec.getZ()).endVertex();
-			quadBaker.vertex(vecs.get(2).x(), vecs.get(2).y(), vecs.get(2).z()).color(colors[1], colors[2], colors[3], colors[0]).uv(u2, v2).normal(dirVec.getX(), dirVec.getY(), dirVec.getZ()).endVertex();
-			quadBaker.vertex(vecs.get(3).x(), vecs.get(3).y(), vecs.get(3).z()).color(colors[1], colors[2], colors[3], colors[0]).uv(u2, v1).normal(dirVec.getX(), dirVec.getY(), dirVec.getZ()).endVertex();
+			quadBaker.vertex(vecs.get(0).x(), vecs.get(0).y(), vecs.get(0).z()).color(color).uv(u1, v1).normal(dirVec.getX(), dirVec.getY(), dirVec.getZ()).endVertex();
+			quadBaker.vertex(vecs.get(1).x(), vecs.get(1).y(), vecs.get(1).z()).color(color).uv(u1, v2).normal(dirVec.getX(), dirVec.getY(), dirVec.getZ()).endVertex();
+			quadBaker.vertex(vecs.get(2).x(), vecs.get(2).y(), vecs.get(2).z()).color(color).uv(u2, v2).normal(dirVec.getX(), dirVec.getY(), dirVec.getZ()).endVertex();
+			quadBaker.vertex(vecs.get(3).x(), vecs.get(3).y(), vecs.get(3).z()).color(color).uv(u2, v1).normal(dirVec.getX(), dirVec.getY(), dirVec.getZ()).endVertex();
 			return bakedQuad[0];
 		}
 
