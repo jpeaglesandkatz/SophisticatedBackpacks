@@ -1,5 +1,6 @@
 package net.p3pp3rf1y.sophisticatedbackpacks.backpack.wrapper;
 
+import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.FloatTag;
 import net.minecraft.nbt.IntTag;
@@ -10,8 +11,11 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.energy.IEnergyStorage;
+import net.minecraftforge.fml.util.thread.SidedThreadGroups;
 import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraftforge.server.ServerLifecycleHooks;
 import net.p3pp3rf1y.sophisticatedbackpacks.SophisticatedBackpacks;
 import net.p3pp3rf1y.sophisticatedbackpacks.api.CapabilityBackpackWrapper;
 import net.p3pp3rf1y.sophisticatedbackpacks.api.IEnergyStorageUpgradeWrapper;
@@ -156,6 +160,9 @@ public class BackpackWrapper implements IBackpackWrapper {
 	public ITrackedContentsItemHandler getInventoryForInputOutput() {
 		if (inventoryIOHandler == null) {
 			inventoryIOHandler = new InventoryIOHandler(this);
+			if (Thread.currentThread().getThreadGroup() == SidedThreadGroups.SERVER && ServerLifecycleHooks.getCurrentServer() != null) {
+				fillWithLoot(ServerLifecycleHooks.getCurrentServer().overworld(), BlockPos.ZERO);
+			}
 		}
 		return inventoryIOHandler.getFilteredItemHandler();
 	}
@@ -423,10 +430,16 @@ public class BackpackWrapper implements IBackpackWrapper {
 
 	@Override
 	public void fillWithLoot(Player playerEntity) {
-		if (playerEntity.level().isClientSide) {
+		Level level = playerEntity.level();
+		if (level.isClientSide) {
 			return;
 		}
-		NBTHelper.getString(backpack, LOOT_TABLE_NAME_TAG).ifPresent(ltName -> fillWithLootFromTable(playerEntity, ltName));
+		BlockPos pos = playerEntity.blockPosition();
+		fillWithLoot(level, pos);
+	}
+
+	private void fillWithLoot(Level level, BlockPos pos) {
+		NBTHelper.getString(backpack, LOOT_TABLE_NAME_TAG).ifPresent(ltName -> fillWithLootFromTable(level, pos, ltName));
 	}
 
 	@Override
@@ -477,9 +490,9 @@ public class BackpackWrapper implements IBackpackWrapper {
 		return NBTHelper.getInt(backpack, COLUMNS_TAKEN_TAG).orElse(0);
 	}
 
-	private void fillWithLootFromTable(Player playerEntity, String lootName) {
-		MinecraftServer server = playerEntity.level().getServer();
-		if (server == null || !(playerEntity.level() instanceof ServerLevel serverLevel)) {
+	private void fillWithLootFromTable(Level level, BlockPos pos, String lootName) {
+		MinecraftServer server = level.getServer();
+		if (server == null || !(level instanceof ServerLevel serverLevel)) {
 			return;
 		}
 
@@ -489,7 +502,7 @@ public class BackpackWrapper implements IBackpackWrapper {
 		backpack.removeTagKey(LOOT_TABLE_NAME_TAG);
 		backpack.removeTagKey(LOOT_PERCENTAGE_TAG);
 
-		List<ItemStack> loot = LootHelper.getLoot(lootTableName, server, serverLevel, playerEntity);
+		List<ItemStack> loot = LootHelper.getLoot(lootTableName, server, serverLevel, pos);
 		loot.removeIf(stack -> stack.getItem() instanceof BackpackItem);
 		loot = RandHelper.getNRandomElements(loot, (int) (loot.size() * lootPercentage));
 		LootHelper.fillWithLoot(serverLevel.random, loot, getInventoryHandler());
